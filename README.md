@@ -59,7 +59,7 @@
 * [Xel/Blockchain-stuff](https://github.com/Xel/Blockchain-stuff#ethereum-and-smart-contracts)
 * [bkrem/awesome-solidity](https://github.com/bkrem/awesome-solidity)
 * [btomashvili/awesome-ethereum](https://github.com/btomashvili/awesome-ethereum)
-* [Getting Title at 26:26](https://github.com/genesisdotre/awesome-ethereum-events)
+* [genesisdotre/awesome-ethereum-events](https://github.com/genesisdotre/awesome-ethereum-events)
 
 ### Online course
 
