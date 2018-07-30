@@ -14,6 +14,7 @@
 ### IDE
 
 * [Remix - Solidity IDE](https://remix.ethereum.org/)
+* [EthFiddle - Solidity IDE in the Browser. Powered By Loom Network](https://ethfiddle.com/)
 * [GitHub - juanfranblanco/vscode-solidity: Visual Studio Code language support extension for Solidity smart contracts in Ethereum](https://github.com/juanfranblanco/vscode-solidity)
   
 ### Video
@@ -77,6 +78,7 @@
 * [Ethplorer — Ethereal tokens explorer and data viewer](https://ethplorer.io/)
 * [Ethereum BlockChain Explorer and Search](https://etherscan.io/)
 * [Ethereum Unit Converter](https://etherconverter.online/)
+* [Ethereum Network Status](https://ethstats.net/)
 * [Week in Ethereum News](http://www.weekinethereum.com/)
 * [reddit - ethereum](https://www.reddit.com/r/ethereum/top/?t=week)
 
