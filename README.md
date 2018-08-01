@@ -30,6 +30,8 @@
 
 ## Dapp
 
+* [A Guide to Building Your First Decentralized Application - YouTube](https://www.youtube.com/watch?v=gSQXq2_j-mw)
+
 ### Slides
 
 * [Nina Breznik - How to build a DApp](https://slides.com/ninabreznik/deck-11-13/fullscreen)
@@ -38,6 +40,7 @@
 
 * [CryptoZombies - Learn to code games on Ethereum. Powered by Loom Network](https://cryptozombies.io/)
 * [Developing Ethereum Smart Contracts for Beginners](https://coursetro.com/courses/20/Developing-Ethereum-Smart-Contracts-for-Beginners)
+* [Smart Contracts and Decentralized Apps 101](https://coursetro.com/posts/code/98/Smart-Contracts-and-Decentralized-Apps-101)
 * Building Smart Contracts with Remix by **Nina Breznik & Alex Praetorius**
   * [Slides](http://slides.com/ninabreznik/deck-11-12/fullscreen)
   * [YouTube](https://www.youtube.com/watch?v=nAI_Cr5Y8JY&feature=youtu.be)
