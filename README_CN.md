@@ -4,12 +4,18 @@
 
 * [Web3.js API 中文文档](http://web3.tryblockchain.org/index.html)
 
-
 ## Smart Contract
 
 * [使用Node.js部署智能合約(Smart Contract) – Taipei Ethereal Meetup – Medium](https://medium.com/taipei-ethereum-meetup/%E4%BD%BF%E7%94%A8node-js%E9%83%A8%E7%BD%B2%E6%99%BA%E8%83%BD%E5%90%88%E7%B4%84-smart-contract-520534305aaf)
 
+## Summit
+
+* [2017區塊鏈愛好者大會](https://seminars.tca.org.tw/D15n00197.aspx)
+  * [會議資料及活動影片下載](https://goo.gl/Fg9Zr3)
+
 ## Meeting up / Workshop
+
+* [Taipei Ethereal Meetup | Facebook](https://www.facebook.com/eth.taipei/)
 
 ### 20180429 Solidity & web3.js DApp 工作坊
 

@@ -2,6 +2,7 @@
 
 * [Ethereum Project](https://ethereum.org/)
 * [ethereum/wiki Wiki · GitHub](https://github.com/ethereum/wiki/wiki)
+* [Readme for Chinese version](README_CN.md)
 
 ## Intro
 
@@ -11,15 +12,27 @@
 
 ## Solidity
 
+* [Solidity 0.4.24 documentation](https://solidity.readthedocs.io/en/v0.4.24/)
+
+### Youtube Playlist
+
+* [Learning Solidity](solidity/playlist-PL16WqdAj66SCOdL6XIFbke-XQg2GW_Avg.md) created by [What's Solidity](https://www.youtube.com/channel/UCaWes1eWQ9TbzA695gl_PtA)
+
 ### IDE
 
 * [Remix - Solidity IDE](https://remix.ethereum.org/)
 * [EthFiddle - Solidity IDE in the Browser. Powered By Loom Network](https://ethfiddle.com/)
-* [GitHub - juanfranblanco/vscode-solidity: Visual Studio Code language support extension for Solidity smart contracts in Ethereum](https://github.com/juanfranblanco/vscode-solidity)
-  
+* [GitHub - juanfranblanco/vscode-solidity](https://github.com/juanfranblanco/vscode-solidity): Visual Studio Code language support extension for Solidity smart contracts in Ethereum
+
 ### Video
 
-* [Youtube Video](video.md)
+* [Youtube Video](youtube_video.md)
+
+## Dapp
+
+### Slides
+
+* [Nina Breznik - How to build a DApp](https://slides.com/ninabreznik/deck-11-13/fullscreen)
 
 ## Smart Contracts
 
@@ -29,7 +42,6 @@
 ### Slides
 
 * [Nina Breznik - Building Smart Contracts with Remix](http://slides.com/ninabreznik/deck-11-12/fullscreen)
-* [Nina Breznik - How to build a DApp](https://slides.com/ninabreznik/deck-11-13/fullscreen)
 
 ### Example Repo
 
@@ -41,6 +53,7 @@
 
 * [Let’s Build Your First Smart Contract in Solidity and Truffle](https://medium.com/etherereum-salon/hello-ethereum-solan-contract-4643118a6119)
 * [Common Patterns &mdash; Solidity 0.4.24 documentation](https://solidity.readthedocs.io/en/v0.4.24/common-patterns.html)
+* [Solidity Tutorials | Ethereal Builder’s Guide](https://ethereumbuilders.gitbooks.io/guide/content/en/solidity_tutorials.html)
 
 ## Web3.js
 
@@ -48,9 +61,14 @@
 
 ## Wallet
 
-* [MetaMask](https://metamask.io/)
-* [MyEtherWallet.com](https://www.myetherwallet.com/)
-  * [MyEtherWallet - Github](https://github.com/MyEtherWallet)
+### [MetaMask](https://metamask.io/)
+
+* [MetaMask Compatibility Guide](https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md)
+* [Learning Solidity Part 1: Contract Dev with MetaMask](https://karl.tech/learning-solidity-part-1-deploy-a-contract/)~~
+
+### [MyEtherWallet.com](https://www.myetherwallet.com/)
+
+* [MyEtherWallet - Github](https://github.com/MyEtherWallet)
 
 ## Resources
 
@@ -66,12 +84,15 @@
 
 * [Ethereum and Solidity : Become a Blockchain Developer today](https://www.udemy.com/ethereum-and-solidity-become-a-blockchain-developer-today/)
 
-### Community
+### Community / Conference
 
 * Taipei Ethereum Meetup
   * [Medium](https://medium.com/taipei-ethereum-meetup)
   * [Facebook](https://www.facebook.com/eth.taipei)
   * [Twitter](https://twitter.com/eth_taipei)
+* EDCON (Community Ethereum Development Conference)
+  * [Community Ethereum Development Conference 2018](https://edcon.io/)
+  * [Youtube playlist - EDCON Toronto - 2018](EDCON/playlist-PL6-IF807eaBG5sH-SQXlosqKRM2BZkrqw.md) created by [ETHWORLD](https://www.youtube.com/channel/UC7tELjcjz84KlbQJf0t-euQ)
 
 ## Mise
 
@@ -93,6 +114,15 @@
 * [GitHub - YsnKsy/react-native-geth: Ethereal Light-Client implementation for React Native](https://github.com/YsnKsy/react-native-geth)
 * [GitHub - yuanyu90221/ether-sign-demo](https://github.com/yuanyu90221/ether-sign-demo)
 * [ChainSafeSystems/eth-drive](https://github.com/ChainSafeSystems/eth-drive)
+
+## Glossary
+
+
+name | description
+---------|----------
+ETH | ETH is the main currency on the Ethereum network. However, Ethereum can support multiple currencies and ETH eventually will not have privileged status.
+Gas | Executing transactions on Ethereum either runs computations or stores data. This Costs the network CPU cycles or storage space. That cost is paid for by the account that initiates the transaction. The payment is called "gas". Gas is currently paid using ETH.
+
 
 ### License
 
