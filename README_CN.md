@@ -26,3 +26,7 @@
 ### 20180429 線上區域鍊讀書會 - web3 + solidity
 
 * [Youtube Video](https://www.youtube.com/watch?v=_Lbd0z9lZb4)
+
+## Mise
+
+* [JOYSO | 全球首創混合式去中心化交易所](https://joyso.io/zh_TW/)

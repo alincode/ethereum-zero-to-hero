@@ -38,10 +38,9 @@
 
 * [CryptoZombies - Learn to code games on Ethereum. Powered by Loom Network](https://cryptozombies.io/)
 * [Developing Ethereum Smart Contracts for Beginners](https://coursetro.com/courses/20/Developing-Ethereum-Smart-Contracts-for-Beginners)
-
-### Slides
-
-* [Nina Breznik - Building Smart Contracts with Remix](http://slides.com/ninabreznik/deck-11-12/fullscreen)
+* Building Smart Contracts with Remix by **Nina Breznik & Alex Praetorius**
+  * [Slides](http://slides.com/ninabreznik/deck-11-12/fullscreen)
+  * [YouTube](https://www.youtube.com/watch?v=nAI_Cr5Y8JY&feature=youtu.be)
 
 ### Example Repo
 

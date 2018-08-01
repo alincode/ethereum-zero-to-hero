@@ -1,5 +1,7 @@
 # [Learning Solidity](https://www.youtube.com/playlist?list=PL16WqdAj66SCOdL6XIFbke-XQg2GW_Avg) created by [What's Solidity](https://www.youtube.com/channel/UCaWes1eWQ9TbzA695gl_PtA)
 
+* [source code](https://github.com/willitscale/learning-solidity/)
+
 | title                                                                                                              | Published At |
 | ------------------------------------------------------------------------------------------------------------------ | ------------ |
 | [Tutorial 1 The Basics](https://www.youtube.com/watch?v=v_hU0jPtLto)                                               | 2017-09-06   |
@@ -29,4 +31,102 @@
 | [Tutorial 25 Multisig Wallet cont. Multi Authentication](https://www.youtube.com/watch?v=23YLeX7mpbU)              | 2017-12-06   |
 | [Tutorial 26 Auditing, Security and Testing (Long, but important)](https://www.youtube.com/watch?v=LGCMZ7S_ITE)    | 2017-12-08   |
 | [Tutorial 27 Getting started with browser development using Metamask](https://www.youtube.com/watch?v=eog2eYrPEu0) | 2017-12-19   |
+
+## Tutorial 1 The Basics
+
+### attribute
+
+* internal
+* public
+* private
+
+```
+string private name;
+unit private age;
+```
+
+#### function
+
+```
+    function setName(string newName) {
+        name = newName;
+    }
+    
+    function getName() returns (string) {
+        return name;
+    }
+```
+
+## Tutorial 2 Inheritance
+
+
+```
+interface Regulator {
+    function checkValue(uint amount) returns (bool);
+    function loan() returns (bool);
+}
+
+contract Bank is Regulator {
+    uint private value;
+    
+    function Bank(uint amount) {
+        value = amount;
+    }
+    function checkValue(uint amount) returns (bool) {
+        return value >= amount;
+    }
+    
+    function loan() returns (bool) {
+        return value > 0;
+    }
+}
+
+contract MyFirstContract is Bank(10) {
+	// ...
+}
+```
+
+## Tutorial 3 Custom Modifiers and Error Handling
+
+* assert
+* require
+* revert
+* throw;
+
+```
+    modifier ownerFunc {
+        require(owner == msg.sender);
+        _;
+    }
+
+    function deposit(uint amount) ownerFunc {
+        value += amount;
+    }
+    
+    function withdraw(uint amount) ownerFunc {
+        if (checkValue(amount)) {
+            value -= amount;
+        }
+    }
+```
+
+```
+contract TestThrows {
+    function testAssert() {
+        assert(1 == 2);
+    }
+    
+    function testRequire() {
+        require(2 == 1);
+    }
+    
+    function testRevert() {
+        revert();
+    }
+    
+    function testThrow() {
+        throw;
+    }
+}
+```
 
