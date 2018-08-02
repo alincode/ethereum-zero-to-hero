@@ -243,3 +243,141 @@ contract Transaction {
     
 }
 ```
+
+## Tutorial 6 Data Types (Array, Mapping, Struct)
+
+[Types — Solidity 0.4.25 documentation](http://solidity.readthedocs.io/en/develop/types.html)
+
+#### Booleans
+
+```
+contract DataTypes {
+	bool myBool = false;
+}
+```
+
+#### Integers
+
+* int
+* uint
+* int8 ~ int256
+
+```
+contract DataTypes {
+	int8 myInt = -128;
+	uint8 myUInt = 255;
+}
+```
+
+#### byte
+
+```
+contract DataTypes {	
+	byte myValue;
+	bytes1 myBytes1; 
+	bytes32 myBytes32;
+}
+```
+
+#### string
+
+```
+contract DataTypes {
+	string myString;
+}
+```
+
+#### Fixed Point Numbers
+
+* fixed
+* ufixed
+
+
+#### enum
+
+```
+contract DataTypes {
+    enum Action {ADD, REMOVE, UPDATE}
+    Action myAction = Action.ADD;
+}
+```
+
+#### address
+
+```
+contract DataTypes {
+
+	address myAddress;
+
+	function assignAddress() {
+    myAddress = msg.sender;
+    myAddress.balance;
+    myAddress.transfer(10);
+	}
+
+}
+```
+
+
+#### Members of Addresses
+
+* balance
+* transfer
+* send
+* call, callcode and delegatecall
+
+### Array
+
+```
+contract DataTypes {
+	uint[] myIntArr = [1,2,3];
+    
+	function arrFunc() {
+    myIntArr.push(1);
+    myIntArr.length;
+    myIntArr[0];
+	}
+
+	uint[10] myFixedArr;
+}
+```
+
+### Struct
+
+```
+contract DataTypes {
+	struct Account {
+    uint balance;
+    uint dailyLimit;
+	}
+
+  Account myAccount;
+
+  function structFunc() {
+    myAccount.balance = 100;
+  }
+}
+```
+
+### Mapping
+
+```
+contract DataTypes {
+	
+	struct Account {
+    uint balance;
+    uint dailyLimit;
+	}
+	
+	mapping (address => Account) _accounts;
+	
+	function () payable {
+    _accounts[msg.sender].balance += msg.value;
+	}
+
+  function getBalance() returns (uint) {
+		return _accounts[msg.sender].balance;
+  }
+}
+```
+
