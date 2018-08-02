@@ -47,7 +47,10 @@ unit private age;
 
 #### function
 
+
 ```
+contract SimpleStorage {
+    string name;
     function setName(string newName) {
         name = newName;
     }
@@ -55,6 +58,7 @@ unit private age;
     function getName() returns (string) {
         return name;
     }
+}
 ```
 
 ## Tutorial 2 Inheritance
@@ -88,10 +92,13 @@ contract MyFirstContract is Bank(10) {
 
 ## Tutorial 3 Custom Modifiers and Error Handling
 
-* assert
-* require
-* revert
-* throw;
+### Error Handling
+
+* assert(bool condition): invalidates the transaction if the condition is not met - to be used for internal errors.
+* require(bool condition): reverts if the condition is not met - to be used for errors in inputs or external components.
+* require(bool condition, string message): reverts if the condition is not met - to be used for errors in inputs or external components. Also provides an error message.
+* revert(): abort execution and revert state changes
+* revert(string reason): abort execution and revert state changes, providing an explanatory string
 
 ```
     modifier ownerFunc {
@@ -130,3 +137,109 @@ contract TestThrows {
 }
 ```
 
+## Tutorial 4 Imports and Libraries
+
+```
+// library.sol
+pragma solidity ^0.4.0;
+
+library IntExtended {
+    
+    function increment(uint _self) returns (uint) {
+        return _self+1;
+    }
+    
+    function decrement(uint _self) returns (uint) {
+        return _self-1;
+    }
+    
+    function incrementByValue(uint _self, uint _value) returns (uint) {
+        return _self + _value;
+    }
+    
+    function decrementByValue(uint _self, uint _value) returns (uint) {
+        return _self - _value;
+    }
+}
+```
+
+```
+// testLibrary.sol
+pragma solidity ^0.4.0;
+
+import "browser/library.sol";
+
+contract TestLibrary {
+    using IntExtended for uint;
+    
+    function testIncrement(uint _base) returns (uint) {
+        return IntExtended.increment(_base);
+    }
+    
+    function testDecrement(uint _base) returns (uint) {
+        return IntExtended.decrement(_base);
+    }
+    
+    function testIncrementByValue(uint _base, uint _value) returns (uint) {
+        return _base.incrementByValue(_value);
+    }
+    
+    function testDecrementByValue(uint _base, uint _value) returns (uint) {
+        return _base.decrementByValue(_value);
+    }
+}
+```
+
+## Tutorial 5 Event logging and Transaction Information
+
+[Units and Globally Available Variables — Solidity 0.4.25 documentation](http://solidity.readthedocs.io/en/develop/units-and-global-variables.html#block-and-transaction-properties)
+
+### Block and Transaction Properties
+
+* ~~block.blockhash(uint blockNumber) returns (bytes32): hash of the given block - only works for 256 most recent, excluding current, blocks - deprecated in version 0.4.22 and replaced by blockhash(uint blockNumber).~~
+* block.coinbase (address): current block miner’s address
+* block.difficulty (uint): current block difficulty
+* block.gaslimit (uint): current block gaslimit
+* block.number (uint): current block number
+* block.timestamp (uint): current block timestamp as seconds since unix epoch
+* gasleft() returns (uint256): remaining gas
+* msg.data (bytes): complete calldata
+* ~~msg.gas (uint): remaining gas - deprecated in version 0.4.21 and to be replaced by gasleft()~~
+* msg.sender (address): sender of the message (current call)
+* msg.sig (bytes4): first four bytes of the calldata (i.e. function identifier)
+* msg.value (uint): number of wei sent with the message
+* now (uint): current block timestamp (alias for block.timestamp)
+* tx.gasprice (uint): gas price of the transaction
+* tx.origin (address): sender of the transaction (full call chain)
+
+```
+pragma solidity ^0.4.0;
+
+contract Transaction {
+    
+    event SenderLogger(address);
+    event ValueLogger(uint);
+    
+    address private owner;
+    
+    modifier isOwner {
+        require(owner == msg.sender);
+        _;
+    }
+    
+    modifier validValue {
+        assert(msg.value >= 1 ether);
+        _;
+    }
+    
+    function Transaction() {
+        owner = msg.sender;
+    }
+    
+    function () payable isOwner validValue {
+        SenderLogger(msg.sender);
+        ValueLogger(msg.value);
+    }
+    
+}
+```
