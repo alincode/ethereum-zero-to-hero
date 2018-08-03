@@ -381,3 +381,94 @@ contract DataTypes {
 }
 ```
 
+## Tutorial 7 Extending String Functionality and Bytes
+
+
+```
+// TestStrings.sol
+pragma solidity ^0.4.0;
+
+import "browser/Strings.sol";
+
+contract TestStrings {
+    
+    using Strings for string;
+    
+    function testConcat(string _base) returns (string) {
+        return _base.concat("_suffix");
+    }
+    
+    function needleInHaystack(string _base) returns (int) {
+        return _base.strpos("t");
+    }
+}
+```
+
+```
+// Strings.sol
+pragma solidity ^0.4.0;
+
+library Strings {
+    
+    function concat(string _base, string _value) internal returns (string) {
+        bytes memory _baseBytes = bytes(_base);
+        bytes memory _valueBytes = bytes(_value);
+        
+        string memory _tmpValue = new string(_baseBytes.length + _valueBytes.length);
+        bytes memory _newValue = bytes(_tmpValue);
+        
+        uint i;
+        uint j;
+        
+        for(i=0;i<_baseBytes.length;i++) {
+            _newValue[j++] = _baseBytes[i];
+        }
+        
+        for(i=0;i<_valueBytes.length;i++) {
+            _newValue[j++] = _valueBytes[i];
+        }
+        
+        return string(_newValue);
+    }
+    
+    function strpos(string _base, string _value) internal returns (int) {
+        bytes memory _baseBytes = bytes(_base);
+        bytes memory _valueBytes = bytes(_value);
+
+        assert(_valueBytes.length == 1);        
+        
+        for(uint i=0;i<_baseBytes.length;i++) {
+            if (_baseBytes[i] == _valueBytes[0]) {
+                return int(i);
+            }
+        }
+        
+        return -1;
+    }
+    
+}
+```
+
+#### More
+
+* [bytes and strings in Solidity – Cryptopusco – Medium](https://medium.com/@cryptopusco/bytes-and-strings-in-solidity-f2cd4e53f388)
+
+```
+pragma solidity ^0.4.0;
+
+contract BytesOrStrings {
+
+  string constant _string = "cryptopus.co Medium";
+  bytes32 constant _bytes = "cryptopus.co Medium";
+
+  function  getAsString() public returns(string) {
+	  // gasUsed：21916
+    return _string;
+  }
+
+  function  getAsBytes() public returns(bytes32) {
+	  // gasUsed：21484
+ 	  return _bytes;
+  }
+}
+```
