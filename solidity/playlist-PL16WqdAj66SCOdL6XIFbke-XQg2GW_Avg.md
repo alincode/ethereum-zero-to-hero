@@ -501,3 +501,251 @@ contract Debugging {
     
 }
 ```
+
+
+## Tutorial 9 ERC20 Tokens and Creating your own Crypto Currency
+
+* [Create a cryptocurrency contract in Ethereum](https://ethereum.org/token)
+
+```
+// ERC20.sol
+pragma solidity ^0.4.0;
+
+interface ERC20 {
+    function totalSupply() constant returns (uint _totalSupply);
+    function balanceOf(address _owner) constant returns (uint balance);
+    function transfer(address _to, uint _value) returns (bool success);
+    function transferFrom(address _from, address _to, uint _value) returns (bool success);
+    function approve(address _spender, uint _value) returns (bool success);
+    function allowance(address _owner, address _spender) constant returns (uint remaining);
+    event Transfer(address indexed _from, address indexed _to, uint _value);
+    event Approval(address indexed _owner, address indexed _spender, uint _value);
+}
+```
+
+
+```
+// MyToken.sol
+pragma solidity ^0.4.0;
+
+import "browser/ERC20.sol";
+
+contract MyFirstToken is ERC20 {
+    string public constant symbol = "MFT";
+    string public constant name = "My First Token";
+    uint8 public constant decimals = 18;
+    
+    uint private constant __totalSupply = 1000;
+    mapping (address => uint) private __balanceOf;
+    mapping (address => mapping (address => uint)) private __allowances;
+    
+    function MyFirstToken() {
+            __balanceOf[msg.sender] = __totalSupply;
+    }
+    
+    function totalSupply() constant returns (uint _totalSupply) {
+        _totalSupply = __totalSupply;
+    }
+    
+    function balanceOf(address _addr) constant returns (uint balance) {
+        return __balanceOf[_addr];
+    }
+    
+    function transfer(address _to, uint _value) returns (bool success) {
+        if (_value > 0 && _value <= balanceOf(msg.sender)) {
+            __balanceOf[msg.sender] -= _value;
+            __balanceOf[_to] += _value;
+            return true;
+        }
+        return false;
+    }
+    
+    function transferFrom(address _from, address _to, uint _value) returns (bool success) {
+        if (__allowances[_from][msg.sender] > 0 &&
+            _value > 0 &&
+            __allowances[_from][msg.sender] >= _value && 
+            __balanceOf[_from] >= _value) {
+            __balanceOf[_from] -= _value;
+            __balanceOf[_to] += _value;
+            // Missed from the video
+            __allowances[_from][msg.sender] -= _value;
+            return true;
+        }
+        return false;
+    }
+    
+    function approve(address _spender, uint _value) returns (bool success) {
+        __allowances[msg.sender][_spender] = _value;
+        return true;
+    }
+    
+    function allowance(address _owner, address _spender) constant returns (uint remaining) {
+        return __allowances[_owner][_spender];
+    }
+}
+```
+
+## Tutorial 10 ERC223 Tokens and Creating your own Crypto Currency
+
+* [ERC223 token standard · Issue #223 · ethereum/EIPs](https://github.com/ethereum/EIPs/issues/223)
+* [ERC: Token standard · Issue #20 · ethereum/EIPs](https://github.com/ethereum/EIPs/issues/20)
+* [GitHub - Dexaran/ERC223-token-standard: ERC223 token standard reference implementation.](https://github.com/Dexaran/ERC223-token-standard)
+* [Dexaran/ERC223Token](https://github.com/Dexaran/ERC223Token)
+* [Solidity Assembly — Solidity 0.4.25 documentation](http://solidity.readthedocs.io/en/develop/assembly.html#syntax)
+
+```
+// ERC20.sol
+pragma solidity ^0.4.0;
+
+interface ERC20 {
+    function transferFrom(address _from, address _to, uint _value) public returns (bool);
+    function approve(address _spender, uint _value) public returns (bool);
+    function allowance(address _owner, address _spender) public constant returns (uint);
+    event Approval(address indexed _owner, address indexed _spender, uint _value);
+}
+```
+
+```
+// ERC223.sol
+pragma solidity ^0.4.0;
+
+interface ERC223 {
+    function transfer(address _to, uint _value, bytes _data) public returns (bool);
+    event Transfer(address indexed from, address indexed to, uint value, bytes indexed data);
+}
+```
+
+```
+// ERC223ReceivingContract.sol
+pragma solidity ^0.4.0;
+
+contract ERC223ReceivingContract {
+    function tokenFallback(address _from, uint _value, bytes _data) public;
+}
+```
+
+```
+// MyFirstToken.sol
+pragma solidity ^0.4.0;
+
+import "browser/Token.sol";
+import "browser/ERC20.sol";
+import "browser/ERC223.sol";
+import "browser/ERC223ReceivingContract.sol";
+
+contract MyFirstToken is Token("MFT", "My First Token", 18, 1000), ERC20, ERC223 {
+
+    function MyFirstToken() public {
+        _balanceOf[msg.sender] = _totalSupply;
+    }
+    
+    function totalSupply() public constant returns (uint) {
+        return _totalSupply;
+    }
+    
+    function balanceOf(address _addr) public constant returns (uint) {
+        return _balanceOf[_addr];
+    }
+
+    function transfer(address _to, uint _value) public returns (bool) {
+        if (_value > 0 && 
+            _value <= _balanceOf[msg.sender] &&
+            !isContract(_to)) {
+            _balanceOf[msg.sender] -= _value;
+            _balanceOf[_to] += _value;
+            Transfer(msg.sender, _to, _value);
+            return true;
+        }
+        return false;
+    }
+
+    function transfer(address _to, uint _value, bytes _data) public returns (bool) {
+        if (_value > 0 && 
+            _value <= _balanceOf[msg.sender] &&
+            isContract(_to)) {
+            _balanceOf[msg.sender] -= _value;
+            _balanceOf[_to] += _value;
+            ERC223ReceivingContract _contract = ERC223ReceivingContract(_to);
+                _contract.tokenFallback(msg.sender, _value, _data);
+            Transfer(msg.sender, _to, _value, _data);
+            return true;
+        }
+        return false;
+    }
+
+    function isContract(address _addr) returns (bool) {
+        uint codeSize;
+        assembly {
+            codeSize := extcodesize(_addr)
+        }
+        return codeSize > 0;
+    }
+
+    function transferFrom(address _from, address _to, uint _value) public returns (bool) {
+        if (_allowances[_from][msg.sender] > 0 &&
+            _value > 0 &&
+            _allowances[_from][msg.sender] >= _value &&
+            _balanceOf[_from] >= _value) {
+            _balanceOf[_from] -= _value;
+            _balanceOf[_to] += _value;
+            _allowances[_from][msg.sender] -= _value;
+            Transfer(_from, _to, _value);
+            return true;
+        }
+        return false;
+    }
+    
+    function approve(address _spender, uint _value) public returns (bool) {
+        _allowances[msg.sender][_spender] = _value;
+        Approval(msg.sender, _spender, _value);
+        return true;
+    }
+    
+    function allowance(address _owner, address _spender) public constant returns (uint) {
+        return _allowances[_owner][_spender];
+    }
+}
+```
+
+```
+// Token.sol
+pragma solidity ^0.4.0;
+
+contract Token {
+    string internal _symbol;
+    string internal _name;
+    uint8 internal _decimals;
+    uint internal _totalSupply = 1000;
+    mapping (address => uint) internal _balanceOf;
+    mapping (address => mapping (address => uint)) internal _allowances;
+    
+    function Token(string symbol, string name, uint8 decimals, uint totalSupply) public {
+        _symbol = symbol;
+        _name = name;
+        _decimals = decimals;
+        _totalSupply = totalSupply;
+    }
+    
+    function name() public constant returns (string) {
+        return _name;
+    }
+    
+    function symbol() public constant returns (string) {
+        return _symbol;
+    }
+    
+    function decimals() public constant returns (uint8) {
+        return _decimals;
+    }
+    
+    function totalSupply() public constant returns (uint) {
+        return _totalSupply;
+    }
+    
+    function balanceOf(address _addr) public constant returns (uint);
+    function transfer(address _to, uint _value) public returns (bool);
+    event Transfer(address indexed _from, address indexed _to, uint _value);
+}
+```
+
+

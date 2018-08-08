@@ -14,7 +14,7 @@
 * [CryptoZombies - 编游戏的同时学习以太坊的智能协议. Loom Network产品。](https://cryptozombies.io/zh/)
   * [線上讀書會 區塊鏈新手的加密殭屍以太坊程式教學100% 無痛全破分享會 - YouTube](https://www.youtube.com/watch?v=qOGCvYLQ86k)
   * [線上讀書會 凱捷 主講 加密殭屍以太坊程式教學100%  part2 - YouTube](https://www.youtube.com/watch?v=gUCMHlfXe4I)
-  * [線上讀書會 凱捷 主講 加密殭屍以太坊程式教學100% part3 - YouTube](https://www.youtube.com/watch?v=wRqsd99S12c&t=4s)
+  * [線上讀書會 凱捷 主講 加密殭屍以太坊程式教學100% part3 - YouTube](https://www.youtube.com/watch?v=wRqsd99S12c)
 
 
 ## Summit
