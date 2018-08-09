@@ -45,8 +45,9 @@
   * [Slides](http://slides.com/ninabreznik/deck-11-12/fullscreen)
   * [YouTube](https://www.youtube.com/watch?v=nAI_Cr5Y8JY&feature=youtu.be)
 
-### Example Repo
+### Repo
 
+* [OpenZeppelin/openzeppelin-solidity](https://github.com/OpenZeppelin/openzeppelin-solidity): OpenZeppelin, a framework to build secure smart contracts on Ethereum
 * [pigworld/Plasma](https://github.com/pigworld/Plasma)
 * [ConsenSys/smart-contract-best-practices](https://github.com/ConsenSys/smart-contract-best-practices): A guide to smart contract security best practices 
   * [Ethereum Smart Contract Best Practices](https://consensys.github.io/smart-contract-best-practices/)
