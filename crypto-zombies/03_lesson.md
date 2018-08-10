@@ -11,7 +11,7 @@
 
 我們在 DApp 的代碼中用“硬編碼”的方式指定了加密小貓的地址，如果這個根據地址找不到小貓，我們的殭屍也就吃不到小貓了
 
-因此我們不能寫 hard code，而要採用「函示」，以便於 DApp 的關鍵部分可以以參數的形式修改。
+因此我們不能寫 hard code，而要採用「函數」，以便於 DApp 的關鍵部分可以以參數的形式修改。
 
 ### 完整範例
 
@@ -396,3 +396,288 @@ function fiveMinutesHavePassed() public view returns (bool) {
 ```
 
 ### 實戰練習
+
+注意：必須使用 uint32（...） 進行強制類型轉換，因為 now 返回類型 uint256。所以我們需要明確將它轉換成一個 uint32 類型的變數。
+
+```
+pragma solidity ^0.4.19;
+
+import "./ownable.sol";
+
+contract ZombieFactory is Ownable {
+
+    event NewZombie(uint zombieId, string name, uint dna);
+
+    uint dnaDigits = 16;
+    uint dnaModulus = 10 ** dnaDigits;
+    // step 1
+    uint cooldownTime = 1 days;
+
+    struct Zombie {
+        string name;
+        uint dna;
+        uint32 level;
+        uint32 readyTime;
+    }
+
+    Zombie[] public zombies;
+
+    mapping (uint => address) public zombieToOwner;
+    mapping (address => uint) ownerZombieCount;
+
+    function _createZombie(string _name, uint _dna) internal {
+        // step 2
+        uint id = zombies.push(Zombie(_name, _dna, 1, uint32(now + cooldownTime))) - 1;
+        zombieToOwner[id] = msg.sender;
+        ownerZombieCount[msg.sender]++;
+        NewZombie(id, _name, _dna);
+    }
+
+    function _generateRandomDna(string _str) private view returns (uint) {
+        uint rand = uint(keccak256(_str));
+        return rand % dnaModulus;
+    }
+
+    function createRandomZombie(string _name) public {
+        require(ownerZombieCount[msg.sender] == 0);
+        uint randDna = _generateRandomDna(_name);
+        randDna = randDna - randDna % 100;
+        _createZombie(_name, randDna);
+    }
+
+}
+```
+
+## 第6章：殭屍冷卻
+
+```
+  function _triggerCooldown(Zombie storage _zombie) internal {
+    _zombie.readyTime = uint32(now + cooldownTime);
+  }
+
+  function _isReady(Zombie storage _zombie) internal view returns (bool) {
+    return (_zombie.readyTime <= now);
+  }
+```
+
+
+### 實戰練習
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombiefactory.sol";
+
+contract KittyInterface {
+  function getKitty(uint256 _id) external view returns (
+    bool isGestating,
+    bool isReady,
+    uint256 cooldownIndex,
+    uint256 nextActionAt,
+    uint256 siringWithId,
+    uint256 birthTime,
+    uint256 matronId,
+    uint256 sireId,
+    uint256 generation,
+    uint256 genes
+  );
+}
+
+contract ZombieFeeding is ZombieFactory {
+
+  KittyInterface kittyContract;
+
+  function setKittyContractAddress(address _address) external onlyOwner {
+    kittyContract = KittyInterface(_address);
+  }
+
+  function _triggerCooldown(Zombie storage _zombie) internal {
+    _zombie.readyTime = uint32(now + cooldownTime);
+  }
+
+  function _isReady(Zombie storage _zombie) internal view returns (bool) {
+    return (_zombie.readyTime <= now);
+  }
+
+  function feedAndMultiply(uint _zombieId, uint _targetDna, string species) public {
+    require(msg.sender == zombieToOwner[_zombieId]);
+    Zombie storage myZombie = zombies[_zombieId];
+    _targetDna = _targetDna % dnaModulus;
+    uint newDna = (myZombie.dna + _targetDna) / 2;
+    if (keccak256(species) == keccak256("kitty")) {
+      newDna = newDna - newDna % 100 + 99;
+    }
+    _createZombie("NoName", newDna);
+  }
+
+  function feedOnKitty(uint _zombieId, uint _kittyId) public {
+    uint kittyDna;
+    (,,,,,,,,,kittyDna) = kittyContract.getKitty(_kittyId);
+    feedAndMultiply(_zombieId, kittyDna, "kitty");
+  }
+
+}
+```
+
+## 第7章：公有函數和安全性
+
+將其可見性設置為 `public`。你必須仔細地檢查所有聲明為 `public` 和 `external` 的函數，一個個排除用戶濫用它們的可能，謹防安全漏洞。請記住，如果這些函數沒有類似 `onlyOwner` 這樣的函數修飾符，用戶能利用各種可能的參數去調用它們。
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombiefactory.sol";
+
+contract KittyInterface {
+  function getKitty(uint256 _id) external view returns (
+    bool isGestating,
+    bool isReady,
+    uint256 cooldownIndex,
+    uint256 nextActionAt,
+    uint256 siringWithId,
+    uint256 birthTime,
+    uint256 matronId,
+    uint256 sireId,
+    uint256 generation,
+    uint256 genes
+  );
+}
+
+contract ZombieFeeding is ZombieFactory {
+
+  KittyInterface kittyContract;
+
+  function setKittyContractAddress(address _address) external onlyOwner {
+    kittyContract = KittyInterface(_address);
+  }
+
+  function _triggerCooldown(Zombie storage _zombie) internal {
+    _zombie.readyTime = uint32(now + cooldownTime);
+  }
+
+  function _isReady(Zombie storage _zombie) internal view returns (bool) {
+      return (_zombie.readyTime <= now);
+  }
+
+  // step1
+  function feedAndMultiply(uint _zombieId, uint _targetDna, string species) internal {
+    require(msg.sender == zombieToOwner[_zombieId]);
+    Zombie storage myZombie = zombies[_zombieId];
+    // step2
+    require(_isReady(myZombie));
+    _targetDna = _targetDna % dnaModulus;
+    uint newDna = (myZombie.dna + _targetDna) / 2;
+    if (keccak256(species) == keccak256("kitty")) {
+      newDna = newDna - newDna % 100 + 99;
+    }
+    _createZombie("NoName", newDna);
+    // step3
+    _triggerCooldown(myZombie);
+  }
+
+  function feedOnKitty(uint _zombieId, uint _kittyId) public {
+    uint kittyDna;
+    (,,,,,,,,,kittyDna) = kittyContract.getKitty(_kittyId);
+    feedAndMultiply(_zombieId, kittyDna, "kitty");
+  }
+
+}
+```
+
+## 第8章：進一步瞭解函數修飾符
+
+### 帶參數的函數修飾符
+
+```
+// 儲存用戶年齡的 mapping
+mapping (uint => uint) public age;
+
+// 限定用戶年齡的修飾符
+modifier olderThan(uint _age, uint _userId) {
+  require(age[_userId] >= _age);
+  _;
+}
+
+// 必須年滿16週歲才允許開車
+// 我們可以用如下參數調用 olderThan 修飾符:
+function driveCar(uint _userId) public olderThan(16, _userId) {
+  // 其餘的邏輯
+}
+```
+
+### 實戰練習
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombiefeeding.sol";
+
+contract ZombieHelper is ZombieFeeding {
+
+  modifier aboveLevel(uint _level, uint _zombieId) {
+    require(zombies[_zombieId].level >= _level);
+    _;
+  }
+
+}
+```
+
+## 第9章：殭屍修飾符
+
+作為遊戲，您得有一些措施激勵玩家們去升級他們的殭屍：
+
+* 2 級以上的殭屍，玩家可給他們改名。
+* 20 級以上的殭屍，玩家能給他們定製的 DNA。
+
+### 實戰練習
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombiefeeding.sol";
+
+contract ZombieHelper is ZombieFeeding {
+
+  modifier aboveLevel(uint _level, uint _zombieId) {
+    require(zombies[_zombieId].level >= _level);
+    _;
+  }
+
+  function changeName(uint _zombieId, string _newName) external aboveLevel(2, _zombieId) {
+    require(msg.sender == zombieToOwner[_zombieId]);
+    zombies[_zombieId].name = _newName;
+  }
+
+  function changeDna(uint _zombieId, uint _newDna) external aboveLevel(20, _zombieId) {
+    require(msg.sender == zombieToOwner[_zombieId]);
+    zombies[_zombieId].dna = _newDna;
+  }
+
+}
+```
+
+## 第10章：利用 View 函數節省 Gas
+
+現在高級別殭屍可以擁有特殊技能了，這一定會鼓動我們的玩家去打怪升級的。
+
+現在需要添加的一個功能是：我們的 DApp 需要一個方法來查看某玩家的整個殭屍軍團，我們稱之為 `getZombiesByOwner`。實現這個功能只需從區塊鏈中讀取數據，所以它可以是一個 view 函數。這讓我們不得不回顧一下「gas優化」這個重要話題。
+
+### view 函數不花 gas
+
+當玩家從外部調用一個 `view` 函數，是不需要支付一分 `gas` 的。
+
+這是因為 `view` 函數不會真正改變區塊鏈上的任何資料，它們只是讀取。因此用 view 標記一個函數，意味著告訴 `web3.js`，運行這個函數只需要查詢你的本地以太坊節點，而不需要在區塊鏈上創建一個事務（事務需要運行在每個節點上，因此花費 gas）。
+
+稍後我們將介紹如何在自己的節點上設置 `web3.js`。但現在，你關鍵是要記住，在所能只讀的函數上標記上表示「只讀」的 `external view` 聲明，就能為你的玩家減少在 `DApp` 中 `gas` 用量。
+
+注意：如果一個 `view` 函數在另一個函數的內部被調用，而調用函數與 `view` 函數的不屬於同一個合約，也會產生調用成本。這是因為如果主調函數在以太坊創建了一個事務，它仍然需要逐個節點去驗證。所以標記為 `view` 的函數只有在外部調用時才是免費的。
+
+### 實戰練習
+
+```
+  function getZombiesByOwner(address _owner) external view returns (uint[]) {
+
+  }
+```
+
+## 第11章: 儲存非常昂貴

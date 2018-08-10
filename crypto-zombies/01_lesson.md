@@ -109,7 +109,7 @@ contract ZombieFactory {
 }
 ```
 
-## 第七章：宣告函示
+## 第七章：宣告函數
 
 ps. 習慣上函數裡的變量都是以(_)開頭 (但不是硬性規定) 以區別全局變量。我們整個教程都會沿用這個習慣。
 
@@ -159,7 +159,7 @@ contract ZombieFactory {
 }
 ```
 
-## 第九章：private / public 函示
+## 第九章：private / public 函數
 Solidity 定義的函數的屬性默認為公共。 這就意味著任何一方 (或其它合約) 都可以調用你合約裡的函數。
 private function 意味著只有我們合約中的其它函數才能夠調用這個函數，給 numbers 數組添加新成員。
 
@@ -185,7 +185,7 @@ contract ZombieFactory {
 }
 ```
 
-## 第十章：函示得更多屬性
+## 第十章：函數得更多屬性
 
 ### return
 
@@ -201,7 +201,7 @@ function sayHello() public returns (string) {
 
 ### view
 
-實際上沒有改變 Solidity 裡的狀態，即它沒有改變或寫入任何值。這種情況下，我們可以把函式定義為 view, 意味著它只能讀取資料不能更改資料。
+實際上沒有改變 Solidity 裡的狀態，即它沒有改變或寫入任何值。這種情況下，我們可以把函數定義為 view, 意味著它只能讀取資料不能更改資料。
 
 ```
 string greeting = "What's up dog";
@@ -213,7 +213,7 @@ function sayHello() public view returns (string) {
 
 ### pure
 
-函式甚至都不能讀取程式裡面的狀態，它的返回值完全取決於它的輸入參數，在這種情況下我們把函式定義為 pure.
+函數甚至都不能讀取程式裡面的狀態，它的返回值完全取決於它的輸入參數，在這種情況下我們把函數定義為 pure.
 
 ```
 function _multiply(uint a, uint b) private pure returns (uint) {
@@ -251,7 +251,7 @@ contract ZombieFactory {
 
 ## 第十一章：Keccak256 和類型轉換
 
-keccak256：Ethereum 的內建函示，它用了SHA3版本，函示基本上就是把一個字符串轉換為一個256位的16進制數字。字串的一個微小的變化都會引起數字變化。
+keccak256：Ethereum 的內建函數，它用了SHA3版本，函數基本上就是把一個字符串轉換為一個256位的16進制數字。字串的一個微小的變化都會引起數字變化。
 
 ### 轉型
 

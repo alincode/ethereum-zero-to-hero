@@ -211,9 +211,9 @@ contract ZombieFeeding is ZombieFactory {
 
 在 Solidity 中，有兩個地方可以存放變數 `storage` 或 `memory`
 
-Storage 變數是指永久儲存在區塊鏈中的變數。 Memory 變數則是臨時存放，當外部函示對某合約調用完成時，Memory 變數即被移除。你可以把它想像成儲存在你電腦的硬碟或是RAM 中資料的關係。
+Storage 變數是指永久儲存在區塊鏈中的變數。 Memory 變數則是臨時存放，當外部函數對某合約調用完成時，Memory 變數即被移除。你可以把它想像成儲存在你電腦的硬碟或是RAM 中資料的關係。
 
-大多數時候你都用不到這些關鍵字，預設情況下 Solidity 會自動處理它們。狀態變數（在函示之外宣告的變數）預設為 `storage` 形式，並永久寫入區塊鏈；而在函示內宣告的變數是 `memory` 形式，當函示調用結束後，就會消失。
+大多數時候你都用不到這些關鍵字，預設情況下 Solidity 會自動處理它們。狀態變數（在函數之外宣告的變數）預設為 `storage` 形式，並永久寫入區塊鏈；而在函數內宣告的變數是 `memory` 形式，當函數調用結束後，就會消失。
 
 ```
 pragma solidity ^0.4.19;
@@ -249,7 +249,7 @@ contract ZombieFeeding is ZombieFactory {
 }
 ```
 
-## 第9章: 函示可見性
+## 第9章: 函數可見性
 
 * public
 * external (外部)
@@ -259,7 +259,7 @@ contract ZombieFeeding is ZombieFactory {
 ### internal 和 external
 
 * internal 和 private 類似，不過，如果某個合約繼承自其父合約，這個合約即可以訪問父合約中定義的“內部”函數。
-* external 與 public 類似，不過，這些函數只能在合約之外調用，它們不能被合約內的其他函示調用。
+* external 與 public 類似，不過，這些函數只能在合約之外調用，它們不能被合約內的其他函數調用。
 
 ```
 contract Sandwich {
@@ -362,7 +362,7 @@ contract ZombieFeeding is ZombieFactory {
 ## 第12章: 處理多回傳值
 
 ```
-getKitty 是我們所看到的第一個返回多個值的函示。我們來看看是如何處理的：
+getKitty 是我們所看到的第一個返回多個值的函數。我們來看看是如何處理的：
 
 function multipleReturns() internal returns(uint a, uint b, uint c) {
   return (1, 2, 3);
