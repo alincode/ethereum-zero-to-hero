@@ -681,3 +681,139 @@ contract ZombieHelper is ZombieFeeding {
 ```
 
 ## 第11章: 儲存非常昂貴
+
+Solidity 使用 `storage` 是相當昂貴的，「寫入」操作尤其貴。
+
+這是因為，無論是寫入還是更改一段數據， 這都將永久性地寫入區塊鏈。「永久性」啊！需要在全球數千個節點的硬盤上存入這些資料，隨著區塊鏈的增長，拷貝份數更多，存儲量也就越大。這是需要成本的！
+
+為了降低成本，不到萬不得已，避免將數據寫入存儲。這也會導致效率低下的編程邏輯 - 比如每次調用一個函數，都需要在 `memory` (內存) 中重建一個數組，而不是簡單地將上次計算的數組給存儲下來以便快速查找。
+
+在大多數編程語言中，遍歷大數據集合都是昂貴的。但是在 Solidity 中，使用一個標記了 `external view` 的函數，遍歷比 `storage` 要便宜太多，因為 `view` 函數不會產生任何花銷。
+
+### 實戰練習
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombiefeeding.sol";
+
+contract ZombieHelper is ZombieFeeding {
+
+  modifier aboveLevel(uint _level, uint _zombieId) {
+    require(zombies[_zombieId].level >= _level);
+    _;
+  }
+
+  function changeName(uint _zombieId, string _newName) external aboveLevel(2, _zombieId) {
+    require(msg.sender == zombieToOwner[_zombieId]);
+    zombies[_zombieId].name = _newName;
+  }
+
+  function changeDna(uint _zombieId, uint _newDna) external aboveLevel(20, _zombieId) {
+    require(msg.sender == zombieToOwner[_zombieId]);
+    zombies[_zombieId].dna = _newDna;
+  }
+
+  // Step1
+  function getZombiesByOwner(address _owner) external view returns(uint[]) {
+    uint[] memory result = new uint[](ownerZombieCount[_owner]);
+    return result;
+  }
+
+}
+```
+
+## 第12章：For 循環
+
+函數中使用的數組是運行時在內存中通過 `for` 循環實時構建，而不是預先建立在存儲中的。
+
+為什麼要這樣做呢？
+
+為了實現 `getZombiesByOwner` 函數，一種“無腦式”的解決方案是在 `ZombieFactory` 中存入”主人“和”殭屍軍團“的映射。
+
+```
+mapping (address => uint[]) public ownerToZombies
+```
+
+然後我們每次創建新殭屍時，執行 
+
+```
+ownerToZombies[owner].push(zombieId)
+```
+
+將其添加到主人的殭屍數組中。而 `getZombiesByOwner` 函數也非常簡單：
+
+```
+function getZombiesByOwner(address _owner) external view returns (uint[]) {
+  return ownerToZombies[_owner];
+}
+```
+
+### 這個做法有問題
+
+做法倒是簡單。可是如果我們需要一個函數來把一頭殭屍轉移到另一個主人名下，又會發生什麼？
+
+這個「換主」函數要做到：
+
+1. 將殭屍 push 到新主人的 `ownerToZombies` 數組中
+2. 從舊主的 `ownerToZombies` 數組中移除殭屍
+3. 將舊主殭屍數組中「換主殭屍」之後的的每頭殭屍都往前挪一位，把挪走「換主殭屍」後留下的「空槽」填上
+4. 將數組長度減1。
+
+但是第三步實在是太貴了！因為每挪動一頭殭屍，我們都要執行一次寫操作。如果一個主人有 20 頭殭屍，而第一頭被挪走了，那為了保持數組的順序，我們得做 19 個寫操作。
+
+由於寫入存儲是 Solidity 中最費 gas 的操作之一，使得換主函數的每次調用都非常昂貴。更糟糕的是，每次調用的時候花費的 gas 都不同！具體還取決於用戶在原主軍團中的殭屍頭數，以及移走的殭屍所在的位置。以至於用戶都不知道應該支付多少 gas。
+
+注意：當然，我們也可以把數組中最後一個殭屍往前挪來填補空槽，並將數組長度減少一。但這樣每做一筆交易，都會改變殭屍軍團的秩序。
+
+由於從外部調用一個 `view` 函數是免費的，我們也可以在 `getZombiesByOwner` 函數中用一個 for 循環遍歷整個殭屍數組，把屬於某個主人的殭屍挑出來構建出殭屍數組。那麼我們的 `transfer` 函數將會便宜得多，因為我們不需要挪動存儲裡的殭屍數組重新排序，總體上這個方法會更便宜，雖然有點反直覺。
+
+### 實戰練習
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombiefeeding.sol";
+
+contract ZombieHelper is ZombieFeeding {
+
+  modifier aboveLevel(uint _level, uint _zombieId) {
+    require(zombies[_zombieId].level >= _level);
+    _;
+  }
+
+  function changeName(uint _zombieId, string _newName) external aboveLevel(2, _zombieId) {
+    require(msg.sender == zombieToOwner[_zombieId]);
+    zombies[_zombieId].name = _newName;
+  }
+
+  function changeDna(uint _zombieId, uint _newDna) external aboveLevel(20, _zombieId) {
+    require(msg.sender == zombieToOwner[_zombieId]);
+    zombies[_zombieId].dna = _newDna;
+  }
+
+  // step1
+  function getZombiesByOwner(address _owner) external view returns(uint[]) {
+    uint[] memory result = new uint[](ownerZombieCount[_owner]);
+    uint counter = 0;
+    for(uint i = 0; i < zombies.length; i++) {
+      if(zombieToOwner[i] == _owner) {
+        result[counter] = i;
+        counter++;
+      }
+    }
+    return result;
+  }
+
+}
+```
+
+## 第13章：全部整合
+
+* 讓我們回顧一下：
+* 添加了一種新方法來修改 CryptoKitties 合約
+* 學會使用 `onlyOwner` 進行調用權限限制
+* 瞭解了 `gas` 和 `gas 的優化`
+* 為殭屍添加了 `level` 和 `readyTime` 屬性
+* 當殭屍達到一定級別時，允許修改殭屍的名字和 DNA
+* 最後，定義了一個函數，用以返回某個玩家的殭屍軍團
