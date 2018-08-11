@@ -114,6 +114,8 @@
 
 ### small project / example
 
+* [oraclize/ethereum-api - Github](https://github.com/oraclize/ethereum-api)
+* [oraclize/ethereum-examples - Github](https://github.com/oraclize/ethereum-examples)
 * [GitHub - gonsakon/solidity-sample](https://github.com/gonsakon/solidity-sample)
 * [GitHub - YsnKsy/react-native-geth: Ethereal Light-Client implementation for React Native](https://github.com/YsnKsy/react-native-geth)
 * [GitHub - yuanyu90221/ether-sign-demo](https://github.com/yuanyu90221/ether-sign-demo)

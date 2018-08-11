@@ -24,7 +24,16 @@
 
 ## Meeting up / Workshop
 
-* [Taipei Ethereal Meetup | Facebook](https://www.facebook.com/eth.taipei/)
+* Taipei Ethereal Meetup
+  * [Facebook](https://www.facebook.com/eth.taipei/)
+  * [Medium](https://medium.com/taipei-ethereum-meetup)
+  * [Twitter](https://twitter.com/eth_taipei)
+  * [Meetup](https://www.meetup.com/Taipei-Ethereum-Meetup/)
+
+### 20180321 Ethereum All-Star Tech Talk in Taipei (Ethereum 全明星技術座談)
+
+* [[LIVE] Ethereum All-Star Tech Talk 以太坊全明星技術座談 | Taipei Ethereum Meetup - YouTube](https://www.youtube.com/watch?v=ilsjZAtUUvQ)
+* [Taipei Ethereum Meetup Tickets](https://ethertw.github.io/tickets/)
 
 ### 20180429 Solidity & web3.js DApp 工作坊
 
