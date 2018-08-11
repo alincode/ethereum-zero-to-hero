@@ -341,3 +341,408 @@ contract ZombieBattle is ZombieHelper {
   }
 }
 ```
+
+## 第6章：重構通用邏輯
+
+不管誰調用我們的 `attack` 函數，我們想確保用戶的確擁有他們用來攻擊的殭屍。如果你能用其他人的殭屍來攻擊將是一個很大的安全問題。
+
+你想一想，我們要如何添加一個檢查步驟，來看看調用這個函數的人，就是他們傳入的 _zombieId 的擁有者，看看你能不能自己找到一些答案。
+
+花點時間…… 參考我們前面課程的代碼來獲得靈感。
+
+答案在下面，在你有一些想法之前不要繼續閱讀。
+
+答案
+
+我們在前面的課程裡面已經做過很多次這樣的檢查了。 在 `changeName()`, `changeDna()`, 和 `feedAndMultiply()` 裡，我們做過這樣的檢查：
+
+```
+require(msg.sender == zombieToOwner[_zombieId]);
+```
+
+這和我們 `attack` 函數將要用到的檢查邏輯是相同的。 正因我們要多次調用這個檢查邏輯，讓我們把它移到它自己的 modifier 中來清理代碼，並避免重複編碼。
+
+### 實戰練習
+
+```
+  modifier ownerOf(uint _zombieId) {
+    require(msg.sender == zombieToOwner[_zombieId]);
+    _;
+  }
+
+  function feedAndMultiply(uint _zombieId, uint _targetDna, string _species) internal ownerOf(_zombieId) {
+  }
+```
+
+#### 完整範例
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombiefactory.sol";
+
+contract KittyInterface {
+  function getKitty(uint256 _id) external view returns (
+    bool isGestating,
+    bool isReady,
+    uint256 cooldownIndex,
+    uint256 nextActionAt,
+    uint256 siringWithId,
+    uint256 birthTime,
+    uint256 matronId,
+    uint256 sireId,
+    uint256 generation,
+    uint256 genes
+  );
+}
+
+contract ZombieFeeding is ZombieFactory {
+
+  KittyInterface kittyContract;
+
+  modifier ownerOf(uint _zombieId) {
+    require(msg.sender == zombieToOwner[_zombieId]);
+    _;
+  }
+
+  function setKittyContractAddress(address _address) external onlyOwner {
+    kittyContract = KittyInterface(_address);
+  }
+
+  function _triggerCooldown(Zombie storage _zombie) internal {
+    _zombie.readyTime = uint32(now + cooldownTime);
+  }
+
+  function _isReady(Zombie storage _zombie) internal view returns (bool) {
+      return (_zombie.readyTime <= now);
+  }
+
+  function feedAndMultiply(uint _zombieId, uint _targetDna, string _species) internal ownerOf(_zombieId) {
+    Zombie storage myZombie = zombies[_zombieId];
+    require(_isReady(myZombie));
+    _targetDna = _targetDna % dnaModulus;
+    uint newDna = (myZombie.dna + _targetDna) / 2;
+    if (keccak256(_species) == keccak256("kitty")) {
+      newDna = newDna - newDna % 100 + 99;
+    }
+    _createZombie("NoName", newDna);
+    _triggerCooldown(myZombie);
+  }
+
+  function feedOnKitty(uint _zombieId, uint _kittyId) public {
+    uint kittyDna;
+    (,,,,,,,,,kittyDna) = kittyContract.getKitty(_kittyId);
+    feedAndMultiply(_zombieId, kittyDna, "kitty");
+  }
+}
+```
+
+## 第7章：更多重構
+
+在 `zombiehelper.sol` 裡有幾處地方，需要我們實現我們新的 modifier `ownerOf`。
+
+### 實戰演習
+
+```
+  function changeName(uint _zombieId, string _newName) external aboveLevel(2, _zombieId) ownerOf(_zombieId) {
+      zombies[_zombieId].name = _newName;
+  }
+
+  function changeDna(uint _zombieId, uint _newDna) external aboveLevel(20, _zombieId) ownerOf(_zombieId) {
+      zombies[_zombieId].dna = _newDna;
+  }
+```
+
+* 修改 `changeName()` 使其使用 `ownerOf`
+* 修改 `changeDna()` 使其使用 `ownerOf`
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombiefeeding.sol";
+
+contract ZombieHelper is ZombieFeeding {
+
+  uint levelUpFee = 0.001 ether;
+
+  modifier aboveLevel(uint _level, uint _zombieId) {
+    require(zombies[_zombieId].level >= _level);
+    _;
+  }
+
+  function withdraw() external onlyOwner {
+    owner.transfer(this.balance);
+  }
+
+  function setLevelUpFee(uint _fee) external onlyOwner {
+    levelUpFee = _fee;
+  }
+
+  function levelUp(uint _zombieId) external payable {
+    require(msg.value == levelUpFee);
+    zombies[_zombieId].level++;
+  }
+
+  function changeName(uint _zombieId, string _newName) external aboveLevel(2, _zombieId) ownerOf(_zombieId) {
+      zombies[_zombieId].name = _newName;
+  }
+
+  function changeDna(uint _zombieId, uint _newDna) external aboveLevel(20, _zombieId) ownerOf(_zombieId) {
+      zombies[_zombieId].dna = _newDna;
+  }
+
+  function getZombiesByOwner(address _owner) external view returns(uint[]) {
+    uint[] memory result = new uint[](ownerZombieCount[_owner]);
+    uint counter = 0;
+    for (uint i = 0; i < zombies.length; i++) {
+      if (zombieToOwner[i] == _owner) {
+        result[counter] = i;
+        counter++;
+      }
+    }
+    return result;
+  }
+
+}
+```
+
+## 第8章：回到攻擊
+
+重構完成了，回到 `zombieattack.sol`。
+
+繼續來完善我們的 `attack` 函數， 現在我們有了 `ownerOf` 修飾符來用了。
+
+### 實戰演習
+
+1. 將 `ownerOf` 修飾符添加到 `attack` 來確保調用者擁有 `_zombieId`
+2. 我們的函數所需要做的第一件事就是獲得一個雙方殭屍的 `storage` 指針， 這樣我們才能很方便和它們交互：
+  * 定義一個 `Zombie storage` 命名為 `myZombie`，使其值等於 `zombies[_zombieId]`。
+  * 定義一個 `Zombie storage` 命名為 `enemyZombie`， 使其值等於 `zombies[_targetId]`。
+3. 我們將用一個 0 到 100 的隨機數來確定我們的戰鬥結果。 定義一個 `uint`，命名為 `rand`，設定其值等於 `randMod` 函數的返回值，此函數傳入 100 作為參數。
+
+### 實戰練習
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombiehelper.sol";
+
+contract ZombieBattle is ZombieHelper {
+  uint randNonce = 0;
+  uint attackVictoryProbability = 70;
+
+  function randMod(uint _modulus) internal returns(uint) {
+    randNonce++;
+    return uint(keccak256(now, msg.sender, randNonce)) % _modulus;
+  }
+
+  function attack(uint _zombieId, uint _targetId) external ownerOf(_zombieId) {
+    Zombie storage myZombie = zombies[_zombieId];
+    Zombie storage enemyZombie = zombies[_targetId];
+    uint rand = randMod(100);
+  }
+}
+```
+
+## 第9章：殭屍的輸贏
+
+對我們的殭屍遊戲來說，我們將要追蹤我們的殭屍輸贏了多少場。有了這個我們可以在遊戲裡維護一個「殭屍排行榜」。
+
+有多種方法在我們的 DApp 裡面保存一個數值，作為一個單獨的 mapping，作為一個「排行榜」結構體，或者保存在 `Zombie` 結構體內。
+
+每個方法都有其優缺點，取決於我們打算如何和這些數據打交道。在這個教程中，簡單起見我們將這個狀態保存在 `Zombie` 結構體中，將其命名為 `winCount` 和 `lossCount。`
+
+我們跳回 `zombiefactory.sol`, 將這些屬性添加進 `Zombie` 結構體。
+
+### 實戰練習
+
+1. 修改 Zombie 結構體，添加兩個屬性:
+  * winCount, 一個 uint16
+  * lossCount, 也是一個 uint16
+  * 注意： 記住, 因為我們能在結構體中包裝uint, 我們打算用適合我們的最小的 uint。 一個 uint8 太小了， 因為 2^8 = 256 —— 如果我們的殭屍每天都作戰，不到一年就溢出了。但是 2^16 = 65536 （uint16）—— 除非一個殭屍連續179年每天作戰，否則我們就是安全的。
+1. 現在我們的 Zombie 結構體有了新的屬性， 我們需要修改 _createZombie() 中的函數定義。修改殭屍生成定義，讓每個新殭屍都有 0 贏和 0 輸。
+
+```
+  struct Zombie {
+    string name;
+    uint dna;
+    uint32 level;
+    uint32 readyTime;
+    uint16 winCount;
+    uint16 lossCount;
+  }
+
+  function _createZombie(string _name, uint _dna) internal {
+    uint id = zombies.push(Zombie(_name, _dna, 1, uint32(now + cooldownTime), 0, 0)) - 1;
+    zombieToOwner[id] = msg.sender;
+    ownerZombieCount[msg.sender]++;
+    NewZombie(id, _name, _dna);
+  }
+```
+
+### 完整範例
+
+```
+pragma solidity ^0.4.19;
+
+import "./ownable.sol";
+
+contract ZombieFactory is Ownable {
+
+    event NewZombie(uint zombieId, string name, uint dna);
+
+    uint dnaDigits = 16;
+    uint dnaModulus = 10 ** dnaDigits;
+    uint cooldownTime = 1 days;
+
+    struct Zombie {
+      string name;
+      uint dna;
+      uint32 level;
+      uint32 readyTime;
+      uint16 winCount;
+      uint16 lossCount;
+    }
+
+    Zombie[] public zombies;
+
+    mapping (uint => address) public zombieToOwner;
+    mapping (address => uint) ownerZombieCount;
+
+    function _createZombie(string _name, uint _dna) internal {
+        uint id = zombies.push(Zombie(_name, _dna, 1, uint32(now + cooldownTime), 0, 0)) - 1;
+        zombieToOwner[id] = msg.sender;
+        ownerZombieCount[msg.sender]++;
+        NewZombie(id, _name, _dna);
+    }
+
+    function _generateRandomDna(string _str) private view returns (uint) {
+        uint rand = uint(keccak256(_str));
+        return rand % dnaModulus;
+    }
+
+    function createRandomZombie(string _name) public {
+        require(ownerZombieCount[msg.sender] == 0);
+        uint randDna = _generateRandomDna(_name);
+        randDna = randDna - randDna % 100;
+        _createZombie(_name, randDna);
+    }
+
+}
+```
+
+## 第10章：殭屍勝利了 😄
+
+有了 `winCount` 和 `lossCount`，我們可以根據殭屍哪個殭屍贏了戰鬥來更新它們了。
+
+在第六章我們計算出來一個 0 到 100 的隨機數。現在讓我們用那個數來決定那誰贏了戰鬥，並以此更新我們的狀態。
+
+### 實戰練習
+
+1. 創建一個 if 語句來檢查 `rand` 是不是 小於或者等於 `attackVictoryProbability。`
+1. 如果以上條件為 true， 我們的殭屍就贏了！所以：
+  1. 增加 `myZombie` 的 `winCount。`
+  1. 增加 `myZombie` 的 `level`。
+  1. 增加 `enemyZombie` 的 `lossCount`.
+  1. 運行 `feedAndMultiply` 函數。 在 `zombiefeeding.sol` 裡查看調用它的語句。 對於第三個參數 (_species)，傳入字符串 "zombie". （現在它實際上什麼都不做，不過在稍後， 如果我們願意，可以添加額外的方法，用來製造殭屍變的殭屍）。
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombiehelper.sol";
+
+contract ZombieBattle is ZombieHelper {
+  uint randNonce = 0;
+  uint attackVictoryProbability = 70;
+
+  function randMod(uint _modulus) internal returns(uint) {
+    randNonce++;
+    return uint(keccak256(now, msg.sender, randNonce)) % _modulus;
+  }
+
+  function attack(uint _zombieId, uint _targetId) external ownerOf(_zombieId) {
+    Zombie storage myZombie = zombies[_zombieId];
+    Zombie storage enemyZombie = zombies[_targetId];
+    uint rand = randMod(100);
+    if (rand <= attackVictoryProbability) {
+        myZombie.winCount++;
+        myZombie.level++;
+        enemyZombie.lossCount++;
+        feedAndMultiply(_zombieId, enemyZombie.dna, "zombie");
+    }
+  }
+}
+```
+
+## 第11章: 殭屍失敗 😞
+
+我們已經編寫了你的殭屍贏了之後會發生什麼， 該看看 輸了 的時候要怎麼做了。
+
+在我們的遊戲中，殭屍輸了後並不會降級 —— 只是簡單地給 `lossCount` 加一，並觸發冷卻，等待一天後才能再次參戰。
+
+要實現這個邏輯，我們需要一個 `else` 語句。
+
+else 語句和 JavaScript 以及很多其他語言的 else 語句一樣。
+
+```
+if (zombieCoins[msg.sender] > 100000000) {
+  // 你好有錢!!!
+} else {
+  // 我們需要更多的殭屍幣...
+}
+```
+
+### 實戰練習
+
+1. 添加一個 else 語句。 若我們的殭屍輸了：
+  1. 增加 myZombie 的 lossCount。
+  1. 增加 enemyZombie 的 winCount。
+1. 在 else 最後， 對 myZombie 運行 _triggerCooldown 方法。這讓每個殭屍每天只能參戰一次。
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombiehelper.sol";
+
+contract ZombieBattle is ZombieHelper {
+  uint randNonce = 0;
+  uint attackVictoryProbability = 70;
+
+  function randMod(uint _modulus) internal returns(uint) {
+    randNonce++;
+    return uint(keccak256(now, msg.sender, randNonce)) % _modulus;
+  }
+
+  function attack(uint _zombieId, uint _targetId) external ownerOf(_zombieId) {
+    Zombie storage myZombie = zombies[_zombieId];
+    Zombie storage enemyZombie = zombies[_targetId];
+    uint rand = randMod(100);
+    if (rand <= attackVictoryProbability) {
+      myZombie.winCount++;
+      myZombie.level++;
+      enemyZombie.lossCount++;
+      feedAndMultiply(_zombieId, enemyZombie.dna, "zombie");
+    } else {
+      myZombie.lossCount++;
+      enemyZombie.winCount++;
+      _triggerCooldown(myZombie);
+    }
+  }
+}
+```
+
+## 第12章：放在一起
+
+恭喜你啊，又完成了第四課。
+
+在右邊測試你的戰鬥函數把。
+
+### 認領你的戰利品
+
+在贏了戰鬥之後：
+
+1. 你的殭屍將會升級
+1. 你殭屍的 winCount 將會增加
+1. 你將為你的殭屍大軍獲得一個新的殭屍
+
+繼續測試戰鬥，玩夠了以後點擊下一章來完成本課。
