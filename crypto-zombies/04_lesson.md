@@ -164,3 +164,180 @@ msg.sender.transfer(msg.value - itemFee);
 或者在一個有賣家和賣家的合約中， 你可以把賣家的地址存儲起來， 當有人買了它的東西的時候，把買家支付的錢發送給它 `seller.transfer(msg.value)`。
 
 有很多例子來展示什麼讓以太坊編程如此之酷，你可以擁有一個不被任何人控制的去中心化市場。
+
+### 實戰練習
+
+```
+  uint levelUpFee = 0.001 ether;
+
+  function withdraw() external onlyOwner {
+    owner.transfer(this.balance);
+  }
+
+  function setLevelUpFee(uint _fee) external onlyOwner {
+    levelUpFee = _fee;
+  }
+```
+
+#### 完整範例
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombiefeeding.sol";
+
+contract ZombieHelper is ZombieFeeding {
+
+  uint levelUpFee = 0.001 ether;
+
+  modifier aboveLevel(uint _level, uint _zombieId) {
+    require(zombies[_zombieId].level >= _level);
+    _;
+  }
+
+  function withdraw() external onlyOwner {
+    owner.transfer(this.balance);
+  }
+
+  function setLevelUpFee(uint _fee) external onlyOwner {
+    levelUpFee = _fee;
+  }
+
+  function levelUp(uint _zombieId) external payable {
+    require(msg.value == levelUpFee);
+    zombies[_zombieId].level++;
+  }
+
+  function changeName(uint _zombieId, string _newName) external aboveLevel(2, _zombieId) {
+    require(msg.sender == zombieToOwner[_zombieId]);
+    zombies[_zombieId].name = _newName;
+  }
+
+  function changeDna(uint _zombieId, uint _newDna) external aboveLevel(20, _zombieId) {
+    require(msg.sender == zombieToOwner[_zombieId]);
+    zombies[_zombieId].dna = _newDna;
+  }
+
+  function getZombiesByOwner(address _owner) external view returns(uint[]) {
+    uint[] memory result = new uint[](ownerZombieCount[_owner]);
+    uint counter = 0;
+    for (uint i = 0; i < zombies.length; i++) {
+      if (zombieToOwner[i] == _owner) {
+        result[counter] = i;
+        counter++;
+      }
+    }
+    return result;
+  }
+
+}
+```
+
+## 第3章：殭屍戰鬥
+
+在我們學習了可支付函數和合約餘額之後，是時候為殭屍戰鬥添加功能了。
+
+遵循上一章的格式，我們新建一個攻擊功能合約，並將代碼放進新的文件中，引入上一個合約。
+
+### 實戰練習
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombiehelper.sol";
+
+contract ZombieBattle is ZombieHelper {
+
+}
+```
+
+## 第4章：隨機數
+
+### 用 keccak256 來製造隨機數
+
+```
+// 生成一個0到100的隨機數:
+uint randNonce = 0;
+uint random = uint(keccak256(now, msg.sender, randNonce)) % 100;
+randNonce++;
+uint random2 = uint(keccak256(now, msg.sender, randNonce)) % 100;
+```
+
+這個方法首先拿到 now 的時間戳、msg.sender、以及一個自增數 nonce （一個僅會被使用一次的數，這樣我們就不會對相同的輸入值調用一次以上哈希函數了）。
+
+然後利用 keccak 把輸入的值轉變為一個哈希值，再將哈希值轉換為 uint，然後利用 % 100 來取最後兩位，就生成了一個0到100之間隨機數了。
+
+### 這個方法很容易被不誠實的節點攻擊
+
+在以太坊上，當你在和一個合約上調用函數的時候，你會把它廣播給一個節點或者在網絡上的 transaction 節點們。網絡上的節點將收集很多事務，試著成為第一個解決計算密集型數學問題的人，作為「工作證明」，然後將「工作證明」(Proof of Work, PoW)和事務一起作為一個 block 發佈在網絡上。
+
+一旦一個節點解決了一個 `PoW`，其他節點就會停止嘗試解決這個 `PoW`，並驗證其他節點的事務列表是有效的，然後接受這個節點轉而嘗試解決下一個節點。
+
+**這就讓我們的隨機數函數變得可利用了**
+
+我們假設我們有一個硬幣翻轉合約——正面你贏雙倍錢，反面你輸掉所有的錢。假如它使用上面的方法來決定是正面還是反面 (random >= 50 算正面, random < 50 算反面)。
+
+如果我正運行一個節點，我可以只對我自己的節點發佈一個事務，且不分享它。 我可以運行硬幣翻轉方法來偷窺我的輸贏，如果我輸了，我就不把這個事務包含進我要解決的下一個區塊中去。我可以一直運行這個方法，直到我贏得了硬幣翻轉，並解決了下一個區塊，然後獲利。
+
+### 所以我們該如何在以太坊上安全地生成隨機數呢
+
+因為區塊鏈的全部內容對所有參與者來說是透明的， 這就讓這個問題變得很難，它的解決方法不在本課程討論範圍，你可以閱讀這個[StackOverflow 上的討論](https://ethereum.stackexchange.com/questions/191/how-can-i-securely-generate-a-random-number-in-my-smart-contract)來獲得一些主意。 一個方法是利用 `oracle` 來訪問以太坊區塊鏈之外的隨機數函數。
+
+當然， 因為網絡上成千上萬的以太坊節點都在競爭解決下一個區塊，我能成功解決下一個區塊的幾率非常之低。這將花費我們巨大的計算資源來開發這個獲利方法，但是如果獎勵異常地高(比如我可以在硬幣翻轉函數中贏得 1個億)， 那就很值得去攻擊了。
+
+所以儘管這個方法在以太坊上不安全，在實際中，除非我們的隨機函數有一大筆錢在上面，你遊戲的用戶一般是沒有足夠的資源去攻擊的。
+
+因為在這個教程中，我們只是在編寫一個簡單的遊戲來做演示，也沒有真正的錢在裡面，所以我們決定接受這個不足之處，使用這個簡單的隨機數生成函數。但是要謹記它是不安全的。
+
+### 實戰練習
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombiehelper.sol";
+
+contract ZombieBattle is ZombieHelper {
+  uint randNonce = 0;
+
+  function randMod(uint _modulus) internal returns(uint) {
+    randNonce++;
+    return uint(keccak256(now, msg.sender, randNonce)) % _modulus;
+  }
+}
+```
+
+## 第5章：殭屍對戰
+
+我們的合約已經有了一些隨機性的來源，可以用進我們的殭屍戰鬥中去計算結果。
+
+我們的殭屍戰鬥看起來將是這個流程：
+
+* 你選擇一個自己的殭屍，然後選擇一個對手的殭屍去攻擊。
+* 如果你是攻擊方，你將有70%的幾率獲勝，防守方將有30%的幾率獲勝。
+* 所有的殭屍（攻守雙方）都將有一個 winCount 和一個 lossCount，這兩個值都將根據戰鬥結果增長。
+* 若攻擊方獲勝，這個殭屍將升級並產生一個新殭屍。
+* 如果攻擊方失敗，除了失敗次數將加一外，什麼都不會發生。
+* 無論輸贏，當前殭屍的冷卻時間都將被激活。
+* 這有一大堆的邏輯需要處理，我們將把這些步驟分解到接下來的課程中去。
+
+### 實戰練習
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombiehelper.sol";
+
+contract ZombieBattle is ZombieHelper {
+  uint randNonce = 0;
+  uint attackVictoryProbability = 70;
+
+  function randMod(uint _modulus) internal returns(uint) {
+    randNonce++;
+    return uint(keccak256(now, msg.sender, randNonce)) % _modulus;
+  }
+
+  function attack(uint _zombieId, uint _targetId) external {
+    
+  }
+}
+```
