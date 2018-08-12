@@ -983,6 +983,8 @@ contract Math {
 
 注意你並不需要每次都用上所有的標籤，它們都是可選的。不過最少，寫下一個 `@dev` 註釋來解釋每個方法是做什麼的。
 
+* [Ethereum-Natural-Specification-Format - ethereum/wiki](https://github.com/ethereum/wiki/wiki/Ethereum-Natural-Specification-Format)
+
 ### 實戰練習
 
 如果你還沒注意到：CryptoZombies 的答案檢查器在工作的時候將忽略所有的註釋。所以這一章我們其實無法檢查你的 natspec 註釋了。全靠你自己咯。
@@ -1002,9 +1004,9 @@ import "./zombieattack.sol";
 import "./erc721.sol";
 import "./safemath.sol";
 
-// @title it is a transfer zombie contract
-// @author alincode
-// @dev ERC721
+/// @title it is a transfer zombie contract
+/// @author alincode
+/// @dev ERC721
 contract ZombieOwnership is ZombieAttack, ERC721 {
 
   using SafeMath for uint256;

@@ -20,7 +20,7 @@
 
 完成第五課以後，我們的殭屍 DApp 的 Solidity 合約部分就完成了。現在我們來做一個基本的網頁好讓你的用戶能玩它。 要做到這一點，我們將使用以太坊基金發佈的 JavaScript 庫 `Web3.js`.
 
-### 什麼是 Web3.js?
+### 什麼是 Web3.js？
 
 還記得麼？以太坊網絡是由節點組成的，每一個節點都包含了區塊鏈的一份拷貝。當你想要調用一份智能合約的一個方法，你需要從其中一個節點中查找並告訴它:
 
@@ -132,3 +132,177 @@ var web3 = new Web3(new Web3.providers.WebsocketProvider("wss://mainnet.infura.i
 加密學非常複雜，所以除非你是個專家並且的確知道自己在做什麼，你最好不要在你應用的前端中管理你用戶的私鑰。
 
 不過幸運的是，你並不需要，已經有可以幫你處理這件事的服務了：`Metamask`
+
+### Metamask
+
+`Metamask` 是 Chrome 和 Firefox 的瀏覽器擴展， 它能讓用戶安全地維護他們的以太坊賬戶和私鑰， 並用他們的賬戶和使用 Web3.js 的網站互動（如果你還沒用過它，你肯定會想去安裝的，這樣你的瀏覽器就能使用 Web3.js 了，然後你就可以和任何與以太坊區塊鏈通信的網站交互了）
+
+作為開發者，如果你想讓用戶從他們的瀏覽器裡通過網站和你的DApp交互（就像我們在 CryptoZombies 遊戲裡一樣），你肯定會想要兼容 Metamask 的。
+
+> 注意: Metamask 默認使用 Infura 的服務器做為 web3 提供者。 就像我們上面做的那樣。不過它還為用戶提供了選擇他們自己 Web3 提供者的選項。所以使用 Metamask 的 web3 提供者，你就給了用戶選擇權，而自己無需操心這一塊。
+
+### 使用 Metamask 的 web3 提供者
+
+Metamask 把它的 web3 提供者注入到瀏覽器的全局 JavaScript對象`web3`中。所以你的應用可以檢查 `web3` 是否存在。若存在就使用 `web3.currentProvider` 作為它的提供者。
+
+這裡是一些 Metamask 提供的示例代碼，用來檢查用戶是否安裝了 MetaMask，如果沒有安裝就告訴用戶需要安裝 MetaMask 來使用我們的應用。
+
+```js
+window.addEventListener('load', function() {
+
+  // 檢查web3是否已經注入到(Mist/MetaMask)
+  if (typeof web3 !== 'undefined') {
+    // 使用 Mist/MetaMask 的提供者
+    web3js = new Web3(web3.currentProvider);
+  } else {
+    // 處理用戶沒安裝的情況， 比如顯示一個消息
+    // 告訴他們要安裝 MetaMask 來使用我們的應用
+  }
+
+  // 現在你可以啟動你的應用並自由訪問 Web3.js:
+  startApp()
+})
+```
+
+你可以在你所有的應用中使用這段樣板代碼，好檢查用戶是否安裝以及告訴用戶安裝 MetaMask。
+
+> 注意: 除了MetaMask，你的用戶也可能在使用其他他的私鑰管理應用，比如 `Mist` 瀏覽器。不過，它們都實現了相同的模式來注入 `web3` 變量。所以我這裡描述的方法對兩者是通用的。
+
+### 實戰練習
+
+我們在HTML文件中的 `</body>` 標籤前面放置了一個空的 `script` 標籤。可以把這節課的 JavaScript 代碼寫在裡面。
+
+把上面用來檢測 MetaMask 是否安裝的模板代碼粘貼進來。請粘貼到以 `window.addEventListener` 開頭的代碼塊中。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>CryptoZombies front-end</title>
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="web3.min.js"></script>
+  </head>
+  <body>
+
+    <script>
+      window.addEventListener('load', function() {
+
+      // 檢查web3是否已經注入到(Mist/MetaMask)
+      if (typeof web3 !== 'undefined') {
+        // 使用 Mist/MetaMask 的提供者
+        web3js = new Web3(web3.currentProvider);
+      } else {
+        // 處理用戶沒安裝的情況， 比如顯示一個消息
+        // 告訴他們要安裝 MetaMask 來使用我們的應用
+      }
+
+      // 現在你可以啟動你的應用並自由訪問 Web3.js:
+      startApp()
+
+    })
+    </script>
+  </body>
+</html>
+```
+
+## 第3章: 和合約對話
+
+現在，我們已經用 MetaMask 的 Web3 提供者初始化了 Web3.js。接下來就讓它和我們的智能合約對話吧。
+
+Web3.js 需要兩個東西來和你的合約對話: 它的**地址**和它的**ABI**。
+
+### 合約地址
+
+在你寫完了你的智能合約後，你需要編譯它並把它部署到以太坊。我們將在下一課中詳述部署，因為它和寫代碼是截然不同的過程，所以我們決定打亂順序，先來講 Web3.js。
+
+在你部署智能合約以後，它將獲得一個以太坊上的永久地址。如果你還記得第二課，CryptoKitties 在以太坊上的地址是 `0x06012c8cf97BEaD5deAe237070F9587f8E7A266d`。
+
+你需要在部署後複製這個地址以來和你的智能合約對話。
+
+### 合約 ABI
+
+另一個 Web3.js 為了要和你的智能合約對話而需要的東西是**ABI**。
+
+ABI 意為應用二進制接口（`Application Binary Interface`）。基本上，它是以 JSON 格式表示合約的方法，告訴 Web3.js 如何以合同理解的方式格式化函數調用。
+
+當你編譯你的合約向以太坊部署時(我們將在第七課詳述)， Solidity 編譯器會給你 ABI，所以除了合約地址，你還需要把這個也複製下來。
+
+因為我們這一課不會講述部署，所以現在我們已經幫你編譯了 ABI 並放在了名為 `cryptozombies_abi.js`，文件中，保存在一個名為 `cryptoZombiesABI` 的變量中。
+
+如果我們將 `cryptozombies_abi.js` 包含進我們的項目，我們就能通過那個變量訪問 CryptoZombies ABI 。
+
+### 實例化 Web3.js
+
+一旦你有了合約的地址和 ABI，你可以像這樣來實例化 Web3.js。
+
+```js
+// 實例化 myContract
+var myContract = new web3js.eth.Contract(myABI, myContractAddress);
+```
+
+### 實戰演習
+
+1. 在文件的 `<head>` 標籤塊中，用 `script` 標籤引入`cryptozombies_abi.js`，好把 ABI 的定義引入項目。
+1. 在 `<body>` 裡的 `<script>` 開頭，定義一個`var`，取名`cryptoZombies`， 不過不要對其賦值，稍後我們將用這個這個變量來存儲我們實例化合約。
+1. 接下來，創建一個名為 `startApp()` 的 `function`。 接下來兩步來完成這個方法。
+1. `startApp()` 裡應該做的第一件事是定義一個名為 `cryptoZombiesAddress` 的變量並賦值為「你的合約地址」 (這是你的合約在以太坊主網上的地址)。
+1. 最後，來實例化我們的合約。模仿我們上面的代碼，將 `cryptoZombies` 賦值為 `new web3js.eth.Contract` (使用我們上面代碼中通過 `script` 引入的 `cryptoZombiesABI` 和 `cryptoZombiesAddress`)。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>CryptoZombies front-end</title>
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="web3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="cryptozombies_abi.js"></script>
+  </head>
+  <body>
+
+    <script>
+      var cryptoZombies;
+
+      function startApp() {
+        var cryptoZombiesAddress = "你的合约地址";
+        cryptoZombies = new web3js.eth.Contract(cryptoZombiesABI, cryptoZombiesAddress);
+      }
+
+      window.addEventListener('load', function() {
+
+        // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+        if (typeof web3 !== 'undefined') {
+          // Use Mist/MetaMask's provider
+          web3js = new Web3(web3.currentProvider);
+        } else {
+          // Handle the case where the user doesn't have Metamask installed
+          // Probably show them a message prompting them to install Metamask
+        }
+
+        // Now you can start your app & access web3 freely:
+        startApp()
+
+      })
+    </script>
+  </body>
+</html>
+```
+
+## 第4章: 調用和合約函數
+
+我們的合約配置好了！現在來用 Web3.js 和它對話。
+
+Web3.js 有兩個方法來調用我們合約的函數: `call` and `send`.
+
+### Call
+
+`call` 用來調用 `view` 和 `pure` 函數。它只運行在本地節點，不會在區塊鏈上創建事務。
+
+> 複習: `view` 和 `pure` 函數是只讀，並不會改變區塊鏈的狀態。它們也不會消耗任何gas。用戶也不會被要求用MetaMask對事務簽名。
+
+使用 Web3.js，你可以如下 `call` 一個名為`myMethod`的方法並傳入一個 `123` 作為參數：
+
+```js
+myContract.methods.myMethod(123).call();
+```
