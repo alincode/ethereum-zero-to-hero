@@ -454,3 +454,183 @@ contract ZombieOwnership is ZombieAttack, ERC721 {
   }
 }
 ```
+
+## 第8章: ERC721: takeOwnership
+
+太棒了，現在讓我們完成最後一個函數來結束 ERC721 的實現。（別擔心，這後面我們還會講更多內容😉）
+
+最後一個函數 `takeOwnership`， 應該只是簡單地檢查以確保 `msg.sender` 已經被批准來提取這個代幣或者殭屍。若確認，就調用 `_transfer`；
+
+### 實戰練習
+
+1. 首先，我們要用一個 `require` 句式來檢查 `_tokenId` 的 `zombieApprovals` 和 `msg.sender` 相等。這樣如果 `msg.sender` 未被授權來提取這個代幣，將拋出一個錯誤。
+1. 為了調用 `_transfer`，我們需要知道代幣所有者的地址（它需要一個 `_from` 來作為參數）。幸運的是我們可以在我們的 `ownerOf` 函數中來找到這個參數。所以，定義一個名為 `owner` 的 `address` 變量，並使其等於 `ownerOf(_tokenId)`。
+1. 最後，調用 `_transfer`, 並傳入所有必須的參數。（在這裡你可以用 `msg.sender` 作為 `_to`， 因為代幣正是要發送給調用這個函數的人）。
+
+注意： 我們完全可以用一行代碼來實現第2、3兩步。但是分開寫會讓代碼更易讀。一點個人建議 :)
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombieattack.sol";
+import "./erc721.sol";
+
+contract ZombieOwnership is ZombieAttack, ERC721 {
+
+  mapping (uint => address) zombieApprovals;
+
+  function balanceOf(address _owner) public view returns (uint256 _balance) {
+    return ownerZombieCount[_owner];
+  }
+
+  function ownerOf(uint256 _tokenId) public view returns (address _owner) {
+    return zombieToOwner[_tokenId];
+  }
+
+  function _transfer(address _from, address _to, uint256 _tokenId) private {
+    ownerZombieCount[_to]++;
+    ownerZombieCount[_from]--;
+    zombieToOwner[_tokenId] = _to;
+    Transfer(_from, _to, _tokenId);
+  }
+
+  function transfer(address _to, uint256 _tokenId) public onlyOwnerOf(_tokenId) {
+    _transfer(msg.sender, _to, _tokenId);
+  }
+
+  function approve(address _to, uint256 _tokenId) public onlyOwnerOf(_tokenId) {
+    zombieApprovals[_tokenId] = _to;
+    Approval(msg.sender, _to, _tokenId);
+  }
+
+  function takeOwnership(uint256 _tokenId) public {
+    require(zombieApprovals[_tokenId] == msg.sender);
+    address owner = ownerOf(_tokenId);
+    _transfer(owner, msg.sender, _tokenId);
+  }
+}
+```
+
+## 第9章: 預防溢出
+
+恭喜你，我們完成了 ERC721 的實現。
+
+並不是很複雜，對吧？很多類似的以太坊概念，當你只聽人們談論它們的時候，會覺得很複雜。所以最簡單的理解方式就是你自己來實現它。
+
+不過要記住那只是最簡單的實現。還有很多的特性我們也許想加入到我們的實現中來，比如一些額外的檢查，來確保用戶不會不小心把他們的殭屍轉移給`0`地址（這被稱作 “燒幣”, 基本上就是把代幣轉移到一個誰也沒有私鑰的地址，讓這個代幣永遠也無法恢復）。 或者在 DApp 中加入一些基本的拍賣邏輯。（你能想出一些實現的方法麼？）
+
+但是為了讓我們的課程不至於離題太遠，所以我們只專注於一些基礎實現。如果你想學習一些更深層次的實現，可以在這個教程結束後，去看看 OpenZeppelin 的 ERC721 合約。
+
+### 合約安全增強: 溢出和下溢
+
+我們將來學習你在編寫智能合約的時候需要注意的一個主要的安全特性：防止溢出和下溢。
+
+#### 什麼是 溢出 (overflow)?
+
+假設我們有一個 `uint8`, 只能存儲8 bit數據。這意味著我們能存儲的最大數字就是二進制 `11111111` (或者說十進制的 2^8 - 1 = 255).
+
+來看看下面的代碼。最後 `number` 將會是什麼值？
+
+```
+uint8 number = 255;
+number++;
+```
+
+在這個例子中，我們導致了溢出，雖然我們加了 `1`， 但是 `number` 出乎意料地等於 `0` 了。 (如果你給二進制 `11111111` 加`1`, 它將被重置為 `00000000`，就像鐘錶從 `23:59` 走向 `00:00`)。
+
+下溢(`underflow`)也類似，如果你從一個等於 `0` 的 `uint8` 減去 `1`, 它將變成 `255` (因為 `uint` 是無符號的，其不能等於負數)。
+
+雖然我們在這裡不使用 `uint8`，而且每次給一個 `uint256` 加 `1` 也不太可能溢出 (2^256 真的是一個很大的數了)，在我們的合約中添加一些保護機制依然是非常有必要的，以防我們的 DApp 以後出現什麼異常情況。
+
+### 使用 SafeMath
+
+為了防止這些情況，OpenZeppelin 建立了一個叫做 SafeMath 的`函式庫(library)`，默認情況下可以防止這些問題。
+
+不過在我們使用之前，什麼叫做函式庫?
+
+一個 `library` 是 Solidity 中一種特殊的合約。其中一個有用的功能是**給原始數據類型增加一些方法**。
+
+比如，使用 SafeMath 庫的時候，我們將使用 `using SafeMath for uint256` 這樣的語法。 SafeMath 庫有四個方法，`add`、`sub`、`mul`，以及 `div`。現在我們可以這樣來讓 `uint256` 調用這些方法：
+
+```
+using SafeMath for uint256;
+
+uint256 a = 5;
+uint256 b = a.add(3); // 5 + 3 = 8
+uint256 c = a.mul(2); // 5 * 2 = 10
+```
+
+我們將在下一章來學習這些方法，不過現在我們先將 SafeMath 庫添加進我們的合約。
+
+### 實戰練習
+
+我們已經幫你把 OpenZeppelin 的 `SafeMath` 庫包含進 `safemath.sol` 了，如果你想看一下代碼的話，現在可以看看，不過我們下一章將深入進去。
+
+首先我們來告訴我們的合約要使用 SafeMath。我們將在我們的 `ZombieFactory` 裡調用，這是我們的基礎合約 — 這樣其他所有繼承出去的子合約都可以使用這個庫了。
+
+1. 將 `safemath.sol` 引入到 `zombiefactory.sol`
+1. 添加定義： `using SafeMath for uint256;`.
+
+```
+pragma solidity ^0.4.18;
+
+/**
+ * @title SafeMath
+ * @dev Math operations with safety checks that throw on error
+ */
+library SafeMath {
+
+  /**
+  * @dev Multiplies two numbers, throws on overflow.
+  */
+  function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+    if (a == 0) {
+      return 0;
+    }
+    uint256 c = a * b;
+    assert(c / a == b);
+    return c;
+  }
+
+  /**
+  * @dev Integer division of two numbers, truncating the quotient.
+  */
+  function div(uint256 a, uint256 b) internal pure returns (uint256) {
+    // assert(b > 0); // Solidity automatically throws when dividing by 0
+    uint256 c = a / b;
+    // assert(a == b * c + a % b); // There is no case in which this doesn't hold
+    return c;
+  }
+
+  /**
+  * @dev Substracts two numbers, throws on overflow (i.e. if subtrahend is greater than minuend).
+  */
+  function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+    assert(b <= a);
+    return a - b;
+  }
+
+  /**
+  * @dev Adds two numbers, throws on overflow.
+  */
+  function add(uint256 a, uint256 b) internal pure returns (uint256) {
+    uint256 c = a + b;
+    assert(c >= a);
+    return c;
+  }
+}
+
+```
+
+```
+pragma solidity ^0.4.19;
+
+import "./ownable.sol";
+import "./safemath.sol";
+
+contract ZombieFactory is Ownable {
+
+  using safemath for uint256;
+
+}
+```
