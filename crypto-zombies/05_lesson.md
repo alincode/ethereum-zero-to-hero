@@ -955,3 +955,117 @@ contract CryptoZombies {
 ```
 
 特別是，最好為你合約中每個方法添加註釋來解釋它的預期行為。這樣其他開發者（或者你自己，在6個月以後再回到這個項目中）可以很快地理解你的代碼而不需要逐行閱讀所有代碼。
+
+Solidity 社區所使用的一個標準是使用一種被稱作 `natspec` 的格式，看起來像這樣：
+
+```
+/// @title 一個簡單的基礎運算合約
+/// @author H4XF13LD MORRIS 💯💯😎💯💯
+/// @notice 現在，這個合約只添加一個乘法
+contract Math {
+  /// @notice 兩個數相乘
+  /// @param x 第一個 uint
+  /// @param y  第二個 uint
+  /// @return z  (x * y) 的結果
+  /// @dev 現在這個方法不檢查溢出
+  function multiply(uint x, uint y) returns (uint z) {
+    // 這只是個普通的註釋，不會被 natspec 解釋
+    z = x * y;
+  }
+}
+```
+
+`@title`（標題） 和 `@author` （作者）很直接了.
+
+`@notice` （須知）向 用戶 解釋這個方法或者合約是做什麼的。 `@dev` （開發者） 是向開發者解釋更多的細節。
+
+`@param` （參數）和 `@return` （返回） 用來描述這個方法需要傳入什麼參數以及返回什麼值。
+
+注意你並不需要每次都用上所有的標籤，它們都是可選的。不過最少，寫下一個 `@dev` 註釋來解釋每個方法是做什麼的。
+
+### 實戰練習
+
+如果你還沒注意到：CryptoZombies 的答案檢查器在工作的時候將忽略所有的註釋。所以這一章我們其實無法檢查你的 natspec 註釋了。全靠你自己咯。
+
+話說回來，到現在你應該已經是一個 Solidity 小能手了。我們就假定你已經學會這些了。
+
+大膽去做些嘗試把，給 `ZombieOwnership` 加上一些 `natspec` 標籤:
+
+1. @title — 例如：一個管理轉移殭屍所有權的合約
+1. @author — 你的名字
+1. @dev — 例如：符合 OpenZeppelin 對 ERC721 標準草案的實現
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombieattack.sol";
+import "./erc721.sol";
+import "./safemath.sol";
+
+// @title it is a transfer zombie contract
+// @author alincode
+// @dev ERC721
+contract ZombieOwnership is ZombieAttack, ERC721 {
+
+  using SafeMath for uint256;
+
+  mapping (uint => address) zombieApprovals;
+
+  function balanceOf(address _owner) public view returns (uint256 _balance) {
+    return ownerZombieCount[_owner];
+  }
+
+  function ownerOf(uint256 _tokenId) public view returns (address _owner) {
+    return zombieToOwner[_tokenId];
+  }
+
+  function _transfer(address _from, address _to, uint256 _tokenId) private {
+    ownerZombieCount[_to] = ownerZombieCount[_to].add(1);
+    ownerZombieCount[msg.sender] = ownerZombieCount[msg.sender].sub(1);
+    zombieToOwner[_tokenId] = _to;
+    Transfer(_from, _to, _tokenId);
+  }
+
+  function transfer(address _to, uint256 _tokenId) public onlyOwnerOf(_tokenId) {
+    _transfer(msg.sender, _to, _tokenId);
+  }
+
+  function approve(address _to, uint256 _tokenId) public onlyOwnerOf(_tokenId) {
+    zombieApprovals[_tokenId] = _to;
+    Approval(msg.sender, _to, _tokenId);
+  }
+
+  function takeOwnership(uint256 _tokenId) public {
+    require(zombieApprovals[_tokenId] == msg.sender);
+    address owner = ownerOf(_tokenId);
+    _transfer(owner, msg.sender, _tokenId);
+  }
+}
+```
+
+## 第14章: 全部整合
+
+恭喜你！這些就是第五課的全部啦。
+
+作為獎賞，我們送給你了一個10級殭屍：H4XF13LD MORRIS 💯💯😎💯💯 ！
+
+（天啊，傳奇的H4XF13LD MORRIS 💯💯😎💯💯 殭屍！）
+
+這下你的殭屍大軍有4個殭屍啦。
+
+在你繼續前，你可以點擊每個殭屍來給它們起一個新名字，（註： H4XF13LD MORRIS 💯💯😎💯💯 這個梗來自於一個在2000年左右流行的古老遊戲，我們的開發者覺得它很酷，你也可以給它起一個你覺得很酷的名字，比如「隔壁老王」或者「綠帽殭屍」😏）。
+
+### 總結一下
+
+這節課裡面我們學到了
+
+* 代幣, ERC721 標準，以及可交易的物件/殭屍
+* 庫以及如何使用庫
+* 如何利用 SafeMath 來防止溢出和下溢
+* 代碼註釋和 natspec 標準
+
+這節教程完成了我們遊戲的 Solidity 代碼（僅針對當下來說，未來的課程我們也許會加入更多進去）。
+
+在接下來的兩節課中，我們將學習如何將遊戲部署到以太坊以及和 web3.js 交互 （這樣你就能為你的 DApp 打造一個界面了 ）。
+
+繼續玩兒或者重命名你的殭屍，然後就可以點擊下一章來結束本節教程了。
