@@ -199,3 +199,258 @@ contract ZombieOwnership is ZombieAttack, ERC721 {
 不，我們不能那樣做！！！要記得，我們正在用 ERC721 代幣標準，意味著其他合約將期望我們的合約以這些確切的名稱來定義函數。這就是這些標準實用的原因。如果另一個合約知道我們的合約符合 ERC721 標準，它可以直接與我們交互，而無需瞭解任何關於我們內部如何實現的細節。
 
 所以，那意味著我們將必須重構我們第4課中的代碼，將 `modifier` 的名稱換成別的。
+
+### 實戰練習
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombiefactory.sol";
+
+contract KittyInterface {
+  function getKitty(uint256 _id) external view returns (
+    bool isGestating,
+    bool isReady,
+    uint256 cooldownIndex,
+    uint256 nextActionAt,
+    uint256 siringWithId,
+    uint256 birthTime,
+    uint256 matronId,
+    uint256 sireId,
+    uint256 generation,
+    uint256 genes
+  );
+}
+
+contract ZombieFeeding is ZombieFactory {
+
+  KittyInterface kittyContract;
+
+  modifier onlyOwnerOf(uint _zombieId) {
+    require(msg.sender == zombieToOwner[_zombieId]);
+    _;
+  }
+
+  function setKittyContractAddress(address _address) external onlyOwner {
+    kittyContract = KittyInterface(_address);
+  }
+
+  function _triggerCooldown(Zombie storage _zombie) internal {
+    _zombie.readyTime = uint32(now + cooldownTime);
+  }
+
+  function _isReady(Zombie storage _zombie) internal view returns (bool) {
+      return (_zombie.readyTime <= now);
+  }
+
+  function feedAndMultiply(uint _zombieId, uint _targetDna, string _species) internal onlyOwnerOf(_zombieId) {
+    Zombie storage myZombie = zombies[_zombieId];
+    require(_isReady(myZombie));
+    _targetDna = _targetDna % dnaModulus;
+    uint newDna = (myZombie.dna + _targetDna) / 2;
+    if (keccak256(_species) == keccak256("kitty")) {
+      newDna = newDna - newDna % 100 + 99;
+    }
+    _createZombie("NoName", newDna);
+    _triggerCooldown(myZombie);
+  }
+
+  function feedOnKitty(uint _zombieId, uint _kittyId) public {
+    uint kittyDna;
+    (,,,,,,,,,kittyDna) = kittyContract.getKitty(_kittyId);
+    feedAndMultiply(_zombieId, kittyDna, "kitty");
+  }
+}
+```
+
+## 第5章：ERC721 轉移標準
+
+好了，我們將衝突修復了！
+
+**現在我們將通過學習把所有權從一個人轉移給另一個人來繼續我們的 ERC721 規範的實現。**
+
+注意 ERC721 規範有兩種不同的方法來轉移代幣：
+
+```
+function transfer(address _to, uint256 _tokenId) public;
+function approve(address _to, uint256 _tokenId) public;
+function takeOwnership(uint256 _tokenId) public;
+```
+
+1. 第一種方法是代幣的擁有者調用 `transfer` 方法，傳入他想轉移到的 `address` 和他想轉移的代幣的 `_tokenId`。
+1. 第二種方法是代幣擁有者首先調用 `approve`，然後傳入與以上相同的參數。接著，該合約會存儲誰被允許提取代幣，通常存儲到一個 `mapping (uint256 => address)` 裡。然後，當有人調用 `takeOwnership` 時，合約會檢查 `msg.sender` 是否得到擁有者的批准來提取代幣，如果是，則將代幣轉移給他。
+
+你注意到了嗎，`transfer` 和 `takeOwnership` 都將包含相同的轉移邏輯，只是以相反的順序。 （一種情況是代幣的發送者調用函數；另一種情況是代幣的接收者調用它）。
+
+所以我們把這個邏輯抽象成它自己的私有函數 `_transfer`，然後由這兩個函數來調用它。 這樣我們就不用寫重複的代碼了。
+
+### 實戰演習
+
+讓我們來定義 `_transfer` 的邏輯。
+
+1. 定義一個名為 `_transfer` 的函數。它會需要3個參數：`address _from`、`address _to`和`uint256 _tokenId`。它應該是一個`私有`函數。
+1. 我們有2個 mapping 會在所有權改變的時候改變： `ownerZombieCount` （記錄一個所有者有多少隻殭屍）和 `zombieToOwner` （記錄殭屍被誰擁有）。我們的函數需要做的第一件事是為`接收`殭屍的人`address _to`增加 `ownerZombieCount`。使用 `++` 來增加。
+1. 接下來，我們將需要為 發送`殭屍的人`（address _from）減少 `ownerZombieCount`。使用`--`來扣減。
+1. 最後，我們將改變這個 `_tokenId` 的 `zombieToOwner` 映射，這樣它現在就會指向 `_to`。
+1. 騙你的，那不是最後一步。我們還需要再做一件事情。
+
+`ERC721`規範包含了一個 `Transfer` 事件。這個函數的最後一行應該用正確的參數觸發 `Transfer` ——查看 `erc721.sol` 看它期望傳入的參數並在這裡實現。
+
+```
+contract ERC721 {
+  event Transfer(address indexed _from, address indexed _to, uint256 _tokenId);
+  event Approval(address indexed _owner, address indexed _approved, uint256 _tokenId);
+
+  function balanceOf(address _owner) public view returns (uint256 _balance);
+  function ownerOf(uint256 _tokenId) public view returns (address _owner);
+  function transfer(address _to, uint256 _tokenId) public;
+  function approve(address _to, uint256 _tokenId) public;
+  function takeOwnership(uint256 _tokenId) public;
+}
+```
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombieattack.sol";
+import "./erc721.sol";
+
+contract ZombieOwnership is ZombieAttack, ERC721 {
+
+  function balanceOf(address _owner) public view returns (uint256 _balance) {
+    return ownerZombieCount[_owner];
+  }
+
+  function ownerOf(uint256 _tokenId) public view returns (address _owner) {
+    return zombieToOwner[_tokenId];
+  }
+
+  function _transfer(address _from, address _to, uint256 _tokenId) private {
+      ownerZombieCount[_to]++;
+      ownerZombieCount[_from]--;
+      zombieToOwner[_tokenId] = _to;
+      Transfer(_from, _to, _tokenId);
+  }
+
+  function transfer(address _to, uint256 _tokenId) public {
+
+  }
+
+  function approve(address _to, uint256 _tokenId) public {
+
+  }
+
+  function takeOwnership(uint256 _tokenId) public {
+
+  }
+}
+```
+
+## 第6章：ERC721: 轉移-續
+
+太好了！剛才那是最難的部分，現在實現 public 的 `transfer` 函數應該十分容易，因為我們的 `_transfer` 函數幾乎已經把所有的重活都幹完了。
+
+### 實戰練習
+
+我們想確保只有代幣或殭屍的所有者可以轉移它。還記得我們如何限制只有所有者才能訪問某個功能嗎？
+
+沒錯，我們已經有一個修飾符能夠完成這個任務了。所以將修飾符 `onlyOwnerOf` 添加到這個函數中。
+
+現在該函數的正文只需要一行代碼。它只需要調用 `_transfer`。
+
+記得把 `msg.sender` 作為參數傳遞進 address `_from`。
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombieattack.sol";
+import "./erc721.sol";
+
+contract ZombieOwnership is ZombieAttack, ERC721 {
+
+  function balanceOf(address _owner) public view returns (uint256 _balance) {
+    return ownerZombieCount[_owner];
+  }
+
+  function ownerOf(uint256 _tokenId) public view returns (address _owner) {
+    return zombieToOwner[_tokenId];
+  }
+
+  function _transfer(address _from, address _to, uint256 _tokenId) private {
+    ownerZombieCount[_to]++;
+    ownerZombieCount[_from]--;
+    zombieToOwner[_tokenId] = _to;
+    Transfer(_from, _to, _tokenId);
+  }
+
+  function transfer(address _to, uint256 _tokenId) public onlyOwnerOf(_tokenId){
+    _transfer(msg.sender, _to, _tokenId);
+  }
+
+  function approve(address _to, uint256 _tokenId) public {
+
+  }
+
+  function takeOwnership(uint256 _tokenId) public {
+
+  }
+}
+```
+
+## 第7章：ERC721: 批准
+
+現在，讓我們來實現 `approve`。
+
+記住，使用 `approve` 或者 `takeOwnership` 的時候，轉移有2個步驟：
+
+1. 你，作為所有者，用新主人的 `address` 和你希望他獲取的 `_tokenId` 來調用 `approve`
+1. 新主人用 `_tokenId` 來調用 `takeOwnership`，合約會檢查確保他獲得了批准，然後把代幣轉移給他。
+
+因為這發生在2個函數的調用中，所以在函數調用之間，我們需要一個數據結構來存儲什麼人被批准獲取什麼。
+
+### 實戰演習
+
+1. 首先，讓我們來定義一個映射 `zombieApprovals`。它應該將一個 `uint` 映射到一個 `address`。這樣一來，當有人用一個 `_tokenId` 調用 `takeOwnership` 時，我們可以用這個映射來快速查找誰被批准獲取那個代幣。
+1. 在函數 `approve` 上， 我們想要確保只有代幣所有者可以批准某人來獲取代幣。所以我們需要添加修飾符 `onlyOwnerOf` 到 `approve`。
+1. 函數的正文部分，將 `_tokenId` 的 `zombieApprovals` 設置為和 _to 相等。
+1. 最後，在 `ERC721` 規範裡有一個 `Approval` 事件。所以我們應該在這個函數的最後觸發這個事件。（參考 `erc721.sol` 來確認傳入的參數，並確保 `_owner` 是 `msg.sender`）
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombieattack.sol";
+import "./erc721.sol";
+
+contract ZombieOwnership is ZombieAttack, ERC721 {
+
+  mapping (uint => address) zombieApprovals;
+
+  function balanceOf(address _owner) public view returns (uint256 _balance) {
+    return ownerZombieCount[_owner];
+  }
+
+  function ownerOf(uint256 _tokenId) public view returns (address _owner) {
+    return zombieToOwner[_tokenId];
+  }
+
+  function _transfer(address _from, address _to, uint256 _tokenId) private {
+    ownerZombieCount[_to]++;
+    ownerZombieCount[_from]--;
+    zombieToOwner[_tokenId] = _to;
+    Transfer(_from, _to, _tokenId);
+  }
+
+  function transfer(address _to, uint256 _tokenId) public onlyOwnerOf(_tokenId) {
+    _transfer(msg.sender, _to, _tokenId);
+  }
+
+  function approve(address _to, uint256 _tokenId) public onlyOwnerOf(_tokenId) {
+    zombieApprovals[_tokenId] = _to;
+    Approval(msg.sender, _to, _tokenId);
+  }
+
+  function takeOwnership(uint256 _tokenId) public {
+
+  }
+}
+```
