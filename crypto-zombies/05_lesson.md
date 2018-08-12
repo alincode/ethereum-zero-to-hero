@@ -634,3 +634,324 @@ contract ZombieFactory is Ownable {
 
 }
 ```
+
+## 第10章: SafeMath 第二部分
+
+來看看 SafeMath 的部分代碼:
+
+```
+library SafeMath {
+
+  function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+    if (a == 0) {
+      return 0;
+    }
+    uint256 c = a * b;
+    assert(c / a == b);
+    return c;
+  }
+
+  function div(uint256 a, uint256 b) internal pure returns (uint256) {
+    // assert(b > 0); // Solidity automatically throws when dividing by 0
+    uint256 c = a / b;
+    // assert(a == b * c + a % b); // There is no case in which this doesn't hold
+    return c;
+  }
+
+  function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+    assert(b <= a);
+    return a - b;
+  }
+
+  function add(uint256 a, uint256 b) internal pure returns (uint256) {
+    uint256 c = a + b;
+    assert(c >= a);
+    return c;
+  }
+}
+```
+
+首先我們有了 `library` 關鍵字，函式庫(linrary)和合約(contract)很相似，但是又有一些不同。就我們的目的而言，函式庫允許我們使用 `using` 關鍵字，它可以自動把庫的所有方法添加給一個數據類型：
+
+```
+using SafeMath for uint;
+// 這下我們可以為任何 uint 調用這些方法了
+uint test = 2;
+test = test.mul(3); // test 等於 6 了
+test = test.add(5); // test 等於 11 了
+```
+
+注意 `mul` 和 `add` 其實都需要兩個參數。 在我們聲明了 `using SafeMath for uint` 後，我們用來調用這些方法的 `uint` 就自動被作為第一個參數傳遞進去了(在此例中就是 test)
+
+我們來看看 `add` 的源代碼看 `SafeMath` 做了什麼:
+
+function add(uint256 a, uint256 b) internal pure returns (uint256) {
+  uint256 c = a + b;
+  assert(c >= a);
+  return c;
+}
+基本上 `add` 只是像 `+` 一樣對兩個 `uint` 相加， 但是它用一個 `assert` 語句來確保結果大於 `a`。這樣就防止了溢出。
+
+`assert` 和 `require` 相似，若結果為否它就會拋出錯誤。 `assert` 和 `require` 區別在於，`require` 若失敗則會返還給用戶剩下的 gas， `assert` 則不會。所以大部分情況下，你寫代碼的時候會比較喜歡 require，**assert 只在代碼可能出現嚴重錯誤的時候使用，比如 uint 溢出**。
+
+所以簡而言之， SafeMath 的 add， sub， mul， 和 div 方法只做簡單的四則運算，然後在發生溢出或下溢的時候拋出錯誤。
+
+### 在我們的代碼裡使用 SafeMath。
+
+為了防止溢出和下溢，我們可以在我們的代碼裡找 `+`， `-`， `*`， 或 `/`，然後替換為 `add`, `sub`, `mul`, `div`.
+
+比如，與其這樣做:
+
+```
+myUint++;
+```
+
+我們這樣做：
+
+```
+myUint = myUint.add(1);
+```
+
+### 實戰演習
+
+在 `ZombieOwnership` 中有兩個地方用到了數學運算，來替換成 SafeMath 方法把。
+
+1. 將 ++ 替換成 SafeMath 方法。
+1. 將 -- 替換成 SafeMath 方法。
+
+```
+  ownerZombieCount[_to] = ownerZombieCount[_to].add(1);
+  ownerZombieCount[_from] = ownerZombieCount[_from].sub(1);
+```
+
+#### 完整範例
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombieattack.sol";
+import "./erc721.sol";
+import "./safemath.sol";
+
+contract ZombieOwnership is ZombieAttack, ERC721 {
+
+  using SafeMath for uint256;
+
+  mapping (uint => address) zombieApprovals;
+
+  function balanceOf(address _owner) public view returns (uint256 _balance) {
+    return ownerZombieCount[_owner];
+  }
+
+  function ownerOf(uint256 _tokenId) public view returns (address _owner) {
+    return zombieToOwner[_tokenId];
+  }
+
+  function _transfer(address _from, address _to, uint256 _tokenId) private {
+    ownerZombieCount[_to] = ownerZombieCount[_to].add(1);
+    ownerZombieCount[_from] = ownerZombieCount[_from].sub(1);
+    zombieToOwner[_tokenId] = _to;
+    Transfer(_from, _to, _tokenId);
+  }
+
+  function transfer(address _to, uint256 _tokenId) public onlyOwnerOf(_tokenId) {
+    _transfer(msg.sender, _to, _tokenId);
+  }
+
+  function approve(address _to, uint256 _tokenId) public onlyOwnerOf(_tokenId) {
+    zombieApprovals[_tokenId] = _to;
+    Approval(msg.sender, _to, _tokenId);
+  }
+
+  function takeOwnership(uint256 _tokenId) public {
+    require(zombieApprovals[_tokenId] == msg.sender);
+    address owner = ownerOf(_tokenId);
+    _transfer(owner, msg.sender, _tokenId);
+  }
+}
+
+```
+
+## 第11章：SafeMath 第三部分
+
+太好了，這下我們的 ERC721 實現不會有溢出或者下溢了。
+
+回頭看看我們在之前課程寫的代碼，還有其他幾個地方也有可能導致溢出或下溢。
+
+比如， 在 ZombieAttack 裡面我們有：
+
+```
+myZombie.winCount++;
+myZombie.level++;
+enemyZombie.lossCount++;
+```
+
+我們同樣應該在這些地方防止溢出。（通常情況下，總是使用 SafeMath 而不是普通數學運算是個好主意，也許在以後 Solidity 的新版本裡這點會被默認實現，但是現在我們得自己在代碼裡實現這些額外的安全措施）。
+
+不過我們遇到個小問題，`winCount` 和 `lossCount` 是 `uint16`， 而 `level` 是 `uint32`。 所以如果我們用這些作為參數傳入 `SafeMath` 的 `add` 方法。 它實際上並不會防止溢出，因為它會把這些變量都轉換成 `uint256`:
+
+```
+function add(uint256 a, uint256 b) internal pure returns (uint256) {
+  uint256 c = a + b;
+  assert(c >= a);
+  return c;
+}
+
+// 如果我們在`uint8` 上調用 `.add`。它將會被轉換成 `uint256`.
+// 所以它不會在 2^8 時溢出，因為 256 是一個有效的 `uint256`.
+```
+
+這就意味著，我們需要再實現兩個庫來防止 `uint16` 和 `uint32` 溢出或下溢。我們可以將其命名為 `SafeMath16` 和 `SafeMath32`。
+
+代碼將和 SafeMath 完全相同，除了所有的 `uint256` 實例都將被替換成 `uint32` 或 `uint16`。
+
+我們已經將這些代碼幫你寫好了，打開 `safemath.sol` 合約看看代碼吧。
+
+現在我們需要在 `ZombieFactory` 裡使用它們。
+
+### 實戰練習
+
+分配：
+
+1. 聲明我們將為 uint32 使用SafeMath32。
+1. 聲明我們將為 uint16 使用SafeMath16。
+1. 在 ZombieFactory 裡還有一處我們也應該使用 SafeMath 的方法， 我們已經在那裡留了註釋提醒你。
+
+```
+pragma solidity ^0.4.19;
+
+import "./ownable.sol";
+import "./safemath.sol";
+
+contract ZombieFactory is Ownable {
+
+  using SafeMath for uint256;
+  using SafeMath32 for uint32;
+  using SafeMath16 for uint16;
+
+  event NewZombie(uint zombieId, string name, uint dna);
+
+  uint dnaDigits = 16;
+  uint dnaModulus = 10 ** dnaDigits;
+  uint cooldownTime = 1 days;
+
+  struct Zombie {
+    string name;
+    uint dna;
+    uint32 level;
+    uint32 readyTime;
+    uint16 winCount;
+    uint16 lossCount;
+  }
+
+  Zombie[] public zombies;
+
+  mapping (uint => address) public zombieToOwner;
+  mapping (address => uint) ownerZombieCount;
+
+  function _createZombie(string _name, uint _dna) internal {
+    // 注意: 我们选择不处理2038年问题，所以不用担心 readyTime 的溢出
+    // 反正在2038年我们的APP早完蛋了
+    uint id = zombies.push(Zombie(_name, _dna, 1, uint32(now + cooldownTime), 0, 0)) - 1;
+    zombieToOwner[id] = msg.sender;
+    ownerZombieCount[msg.sender] = ownerZombieCount[msg.sender].add(1);
+    NewZombie(id, _name, _dna);
+  }
+
+  function _generateRandomDna(string _str) private view returns (uint) {
+    uint rand = uint(keccak256(_str));
+    return rand % dnaModulus;
+  }
+
+  function createRandomZombie(string _name) public {
+    require(ownerZombieCount[msg.sender] == 0);
+    uint randDna = _generateRandomDna(_name);
+    randDna = randDna - randDna % 100;
+    _createZombie(_name, randDna);
+  }
+
+}
+```
+
+## 第12章: SafeMath 第4部分
+
+真棒，現在我們已經為我們的 DApp 裡面用到的 `uint` 數據類型都實現了 SafeMath 了。
+
+讓我們把 `ZombieAttack` 裡所有潛在的問題都修復了吧。 （其實在 `ZombieHelper` 裡也有一處 `zombies[_zombieId].level++;` 需要修復，不過我們已經幫你做好了，這樣我們就不用再來一章了 😉）。
+
+### 實戰演習
+
+放心大膽去對 `ZombieAttack` 裡所有的 `++` 操作都使用 SafeMath 方法吧。為了方便你找，我們已經在相應的地方留了註釋給你。
+
+```
+pragma solidity ^0.4.19;
+
+import "./zombiehelper.sol";
+
+contract ZombieBattle is ZombieHelper {
+  
+  uint randNonce = 0;
+  uint attackVictoryProbability = 70;
+
+  function randMod(uint _modulus) internal returns(uint) {
+    randNonce = randNonce.add(1);
+    return uint(keccak256(now, msg.sender, randNonce)) % _modulus;
+  }
+
+  function attack(uint _zombieId, uint _targetId) external onlyOwnerOf(_zombieId) {
+    Zombie storage myZombie = zombies[_zombieId];
+    Zombie storage enemyZombie = zombies[_targetId];
+    uint rand = randMod(100);
+    if (rand <= attackVictoryProbability) {
+      myZombie.winCount = myZombie.winCount.add(1);
+      myZombie.level = myZombie.level.add(1);
+      enemyZombie.lossCount = enemyZombie.lossCount.add(1);
+      feedAndMultiply(_zombieId, enemyZombie.dna, "zombie");
+    } else {
+      myZombie.lossCount = myZombie.lossCount.add(1);
+      enemyZombie.winCount = enemyZombie.winCount.add(1);
+      _triggerCooldown(myZombie);
+    }
+  }
+}
+```
+
+## 第13章: 註釋
+
+殭屍遊戲的 Solidity 代碼終於完成啦。
+
+在以後的課程中，我們將學習如何將遊戲部署到以太坊，以及如何和 Web3.js 交互。
+
+不過在你離開第五課之前，我們來談談如何**給你的代碼添加註釋**.
+
+### 註釋語法
+
+Solidity 裡的註釋和 JavaScript 相同。在我們的課程中你已經看到了不少單行註釋了：
+
+```
+// 這是一個單行註釋，可以理解為給自己或者別人看的筆記
+```
+
+只要在任何地方添加一個 `//` 就意味著你在註釋。如此簡單所以你應該經常這麼做。
+
+不過我們也知道你的想法：有時候單行註釋是不夠的。畢竟你生來多話。
+
+所以我們有了多行註釋：
+
+```
+contract CryptoZombies { 
+  /* 這是一個多行註釋。我想對所有花時間來嘗試這個編程課程的人說聲謝謝。
+  它是免費的，並將永遠免費。但是我們依然傾注了我們的心血來讓它變得更好。
+
+   要知道這依然只是區塊鏈開發的開始而已，雖然我們已經走了很遠，
+   仍然有很多種方式來讓我們的社區變得更好。
+   如果我們在哪個地方出了錯，歡迎在我們的 github 提交 PR 或者 issue 來幫助我們改進：
+    https://github.com/loomnetwork/cryptozombie-lessons
+
+    或者，如果你有任何的想法、建議甚至僅僅想和我們打聲招呼，歡迎來我們的電報群：
+     https://t.me/loomnetworkcn
+  */
+}
+```
+
+特別是，最好為你合約中每個方法添加註釋來解釋它的預期行為。這樣其他開發者（或者你自己，在6個月以後再回到這個項目中）可以很快地理解你的代碼而不需要逐行閱讀所有代碼。
