@@ -915,3 +915,281 @@ function createRandomZombie(name) {
   </body>
 </html>
 ```
+
+## 第8章: 調用 Payable 函數
+
+`attack`, `changeName`, 以及 `changeDna` 的邏輯將非常雷同，所以本課將不會花時間在上面。
+
+實際上，在調用這些函數的時候已經有了非常多的重複邏輯。所以最好是重構代碼把相同的代碼寫成一個函數。（並對`txStatus`使用模板系統——我們已經看到用類似 Vue.js 類的框架是多麼整潔）
+
+我們來看看另外一種 Web3.js 中需要特殊對待的函數，`payable` 函數。
+
+### 升級！
+
+回憶一下在 `ZombieHelper` 裡面，我們添加了一個 payable 函數，用戶可以用來升級:
+
+```js
+function levelUp(uint _zombieId) external payable {
+  require(msg.value == levelUpFee);
+  zombies[_zombieId].level++;
+}
+```
+
+和函數一起發送以太非常簡單，只有一點需要注意： 我們需要指定發送多少 wei，而不是以太。
+
+### 啥是 Wei?
+
+一個 `wei` 是以太的最小單位，`1 ether` 等於 `10^18` wei
+
+太多0要數了，不過幸運的是 Web3.js 有一個轉換工具來幫我們做這件事：
+
+```js
+// 把 1 ETH 轉換成 Wei
+web3js.utils.toWei("1", "ether");
+```
+
+在我們的 DApp 裡， 我們設置了 `levelUpFee = 0.001 ether`，所以調用 `levelUp` 方法的時候，我們可以讓用戶用以下的代碼同時發送 `0.001` 以太:
+
+```
+cryptoZombies.methods.levelUp(zombieId)
+.send({ from: userAccount, value: web3js.utils.toWei("0.001","ether") })
+```
+
+### 實戰練習
+
+在 `feedOnKitty` 下面添加一個 `levelUp` 方法。代碼和 `feedOnKitty` 將非常相似。不過：
+
+1. 函數將接收一個參數, `zombieId`
+1. 在發送事務之前，`txStatus` 的文本應該是`"正在升級您的殭屍..."`
+1. 當它調用合約裡的`levelUp`時，它應該發送`"0.001"` ETH，並用 `toWei` 轉換，如同上面例子裡那樣。
+1. 成功之後應該顯示 `"不得了了！殭屍成功升級啦！"`
+1. 我們 `不` 需要在調用 `getZombiesByOwner` 後重新繪製界面，因為在這裡我們只是修改了殭屍的級別而已。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>CryptoZombies front-end</title>
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="web3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="cryptozombies_abi.js"></script>
+  </head>
+  <body>
+    <div id="txStatus"></div>
+    <div id="zombies"></div>
+
+    <script>
+      var cryptoZombies;
+      var userAccount;
+
+      function startApp() {
+        var cryptoZombiesAddress = "YOUR_CONTRACT_ADDRESS";
+        cryptoZombies = new web3js.eth.Contract(cryptoZombiesABI, cryptoZombiesAddress);
+
+        var accountInterval = setInterval(function() {
+          // Check if account has changed
+          if (web3.eth.accounts[0] !== userAccount) {
+            userAccount = web3.eth.accounts[0];
+            // Call a function to update the UI with the new account
+            getZombiesByOwner(userAccount)
+            .then(displayZombies);
+          }
+        }, 100);
+      }
+
+      function displayZombies(ids) {
+        $("#zombies").empty();
+        for (id of ids) {
+          // Look up zombie details from our contract. Returns a `zombie` object
+          getZombieDetails(id)
+          .then(function(zombie) {
+            // Using ES6's "template literals" to inject variables into the HTML.
+            // Append each one to our #zombies div
+            $("#zombies").append(`<div class="zombie">
+              <ul>
+                <li>Name: ${zombie.name}</li>
+                <li>DNA: ${zombie.dna}</li>
+                <li>Level: ${zombie.level}</li>
+                <li>Wins: ${zombie.winCount}</li>
+                <li>Losses: ${zombie.lossCount}</li>
+                <li>Ready Time: ${zombie.readyTime}</li>
+              </ul>
+            </div>`);
+          });
+        }
+      }
+
+      function createRandomZombie(name) {
+        // This is going to take a while, so update the UI to let the user know
+        // the transaction has been sent
+        $("#txStatus").text("Creating new zombie on the blockchain. This may take a while...");
+        // Send the tx to our contract:
+        return cryptoZombies.methods.createRandomZombie(name)
+        .send({ from: userAccount })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Successfully created " + name + "!");
+          // Transaction was accepted into the blockchain, let's redraw the UI
+          getZombiesByOwner(userAccount).then(displayZombies);
+        })
+        .on("error", function(error) {
+          // Do something to alert the user their transaction has failed
+          $("#txStatus").text(error);
+        });
+      }
+
+      function feedOnKitty(zombieId, kittyId) {
+        $("#txStatus").text("Eating a kitty. This may take a while...");
+        return cryptoZombies.methods.feedOnKitty(zombieId, kittyId)
+        .send({ from: userAccount })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Ate a kitty and spawned a new Zombie!");
+          getZombiesByOwner(userAccount).then(displayZombies);
+        })
+        .on("error", function(error) {
+          $("#txStatus").text(error);
+        });
+      }
+
+      function levelUp(zombieId) {
+        $("#txStatus").text("正在升级您的僵尸...");
+        return cryptoZombies.methods.levelUp(zombieId)
+        .send({ from: userAccount, value: web3js.utils.toWei("0.001", "ether") })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("不得了了！僵尸成功升级啦！");
+        })
+        .on("error", function(error) {
+          $("#txStatus").text(error);
+        });
+      }
+
+      function getZombieDetails(id) {
+        return cryptoZombies.methods.zombies(id).call()
+      }
+
+      function zombieToOwner(id) {
+        return cryptoZombies.methods.zombieToOwner(id).call()
+      }
+
+      function getZombiesByOwner(owner) {
+        return cryptoZombies.methods.getZombiesByOwner(owner).call()
+      }
+
+      window.addEventListener('load', function() {
+
+        // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+        if (typeof web3 !== 'undefined') {
+          // Use Mist/MetaMask's provider
+          web3js = new Web3(web3.currentProvider);
+        } else {
+          // Handle the case where the user doesn't have Metamask installed
+          // Probably show them a message prompting them to install Metamask
+        }
+
+        // Now you can start your app & access web3 freely:
+        startApp()
+
+      })
+    </script>
+  </body>
+</html>
+```
+
+## 第9章：訂閱事件
+
+如你所見，通過 Web3.js 和合約交互非常簡單直接，一旦你的環境建立起來， `call` 函數和 `send` 事務和普通的網絡API並沒有多少不同。
+
+還有一點東西我們想要講到，訂閱合約事件。
+
+### 監聽新殭屍事件
+
+如果你還記得 `zombiefactory.sol`，每次新建一個殭屍後，我們會觸發一個 `NewZombie` 事件：
+
+```
+event NewZombie(uint zombieId, string name, uint dna);
+```
+
+在 Web3.js裡， 你可以 `訂閱` 一個事件，這樣你的 Web3 提供者可以在每次事件發生後觸發你的一些代碼邏輯：
+
+```js
+cryptoZombies.events.NewZombie()
+.on("data", function(event) {
+  let zombie = event.returnValues;
+  console.log("一個新殭屍誕生了！", zombie.zombieId, zombie.name, zombie.dna);
+}).on('error', console.error);
+```
+
+注意這段代碼將在 `任何` 殭屍生成的時候激發一個警告信息，而不僅僅是當前用用戶的殭屍。如果我們只想對當前用戶發出提醒呢？
+
+```
+event NewZombie(uint zombieId, string name, uint dna);
+```
+
+### 使用 indexed
+
+為了篩選僅和當前用戶相關的事件，我們的 Solidity 合約將必須使用 `indexed` 關鍵字，就像我們在 ERC721 實現中的 `Transfer` 事件中那樣：
+
+```
+event Transfer(address indexed _from, address indexed _to, uint256 _tokenId);
+```
+
+在這種情況下， 因為 `_from` 和 `_to` 都是 `indexed`，這就意味著我們可以在前端事件監聽中過濾事件
+
+```js
+cryptoZombies.events.Transfer({ filter: { _to: userAccount } })
+.on("data", function(event) {
+  let data = event.returnValues;
+  // 當前用戶更新了一個殭屍！更新界面來顯示
+}).on('error', console.error);
+```
+
+看到了吧， 使用 `event` 和 `indexed` 字段對於監聽合約中的更改並將其反映到 DApp 的前端界面中是非常有用的做法。
+
+### 查詢過去的事件
+
+我們甚至可以用 `getPastEvents` 查詢過去的事件，並用過濾器 `fromBlock` 和 `toBlock` 給 Solidity 一個事件日誌的時間範圍("block" 在這裡代表以太坊區塊編號）：
+
+```js
+cryptoZombies.getPastEvents("NewZombie", { fromBlock: 0, toBlock: 'latest' })
+.then(function(events) {
+  // events 是可以用來遍歷的 `event` 對象 
+  // 這段代碼將返回給我們從開始以來創建的殭屍列表
+});
+```
+
+因為你可以用這個方法來查詢從最開始起的事件日誌，這就有了一個非常有趣的用例：**用事件來作為一種更便宜的存儲**。
+
+若你還能記得，在區塊鏈上保存數據是 Solidity 中最貴的操作之一。但是用事件就便宜太多太多了。
+
+這裡的短板是，事件不能從智能合約本身讀取。但是，如果你有一些數據需要永久性地記錄在區塊鏈中以便可以在應用的前端中讀取，這將是一個很好的用例。這些數據不會影響智能合約向前的狀態。
+
+舉個栗子，我們可以用事件來作為殭屍戰鬥的歷史紀錄——我們可以在每次殭屍攻擊別人以及有一方勝出的時候產生一個事件。智能合約不需要這些數據來計算任何接下來的事情，但是這對我們在前端向用戶展示來說是非常有用的東西。
+
+### Web3.js 事件 和 MetaMask
+
+上面的示例代碼是針對 Web3.js 最新版1.0的，此版本使用了 `WebSockets` 來訂閱事件。
+
+但是，MetaMask 尚且不支持最新的事件 API (儘管如此，他們已經在實現這部分功能了，[點擊這裡](https://github.com/MetaMask/metamask-extension/issues/3642) 查看進度)
+
+所以現在我們必須使用一個單獨 Web3 提供者，它針對事件提供了WebSockets支持。 我們可以用 Infura 來像實例化第二份拷貝：
+
+```js
+var web3Infura = new Web3(new Web3.providers.WebsocketProvider("wss://mainnet.infura.io/ws"));
+var czEvents = new web3Infura.eth.Contract(cryptoZombiesABI, cryptoZombiesAddress);
+```
+
+然後我們將使用 `czEvents.events.Transfer` 來監聽事件，而不再使用 `cryptoZombies.events.Transfer`。我們將繼續在課程的其他部分使用 `cryptoZombies.methods`。
+
+將來，在 MetaMask 升級了 API 支持 Web3.js 後，我們就不用這麼做了。但是現在我們還是要這麼做，以使用 Web3.js 更好的最新語法來監聽事件。
+
+* [Add Web3 1.0 &quot;subscription&quot; support with a polling subprovider · Issue #3642 · MetaMask/metamask-extension](https://github.com/MetaMask/metamask-extension/issues/3642)
+
+### 放在一起
+
+來添加一些代碼監聽 `Transfer` 事件，並在當前用戶獲得一個新殭屍的時候為他更新界面。
+
+我們將需要在 `startApp` 底部添加代碼，以保證在添加事件監聽器之前 `cryptoZombies` 已經初始化了。
+
+1. 在 `startApp()` 底部，為 `cryptoZombies.events.Transfer` 複製粘貼上面的2行事件監聽代碼塊
+1. 複製監聽 `Transfer` 事件的代碼塊，並用 `_to: userAccount` 過濾。要記得把 `cryptoZombies` 換成 `czEvents` 好在這 裡使用 Infura 而不是 MetaMask 來作為提供者。
+1. 用 `getZombiesByOwner(userAccount).then(displayZombies);` 來更新界面
