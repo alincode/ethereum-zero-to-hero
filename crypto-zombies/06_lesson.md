@@ -306,3 +306,309 @@ Web3.js 有兩個方法來調用我們合約的函數: `call` and `send`.
 ```js
 myContract.methods.myMethod(123).call();
 ```
+
+### Send
+
+`send` 將創建一個事務並改變區塊鏈上的數據。你需要用 `send` 來調用任何非 `view` 或者 `pure` 的函數。
+
+> 注意: `send` 一個事務將要求用戶支付gas，並會要求彈出對話框請求用戶使用 Metamask 對事務簽名。在我們使用 Metamask 作為我們的 web3 提供者的時候，所有這一切都會在我們調用 `send()` 的時候自動發生。而我們自己無需在代碼中操心這一切，挺爽的吧。
+
+使用 Web3.js, 你可以像這樣 `send` 一個事務調用 `myMethod` 並傳入 `123` 作為參數：
+
+```js
+myContract.methods.myMethod(123).send()
+```
+
+語法幾乎 `call()` 一模一樣。
+
+### 獲取殭屍數據
+
+來看一個使用 call 讀取我們合約數據的真實例子
+
+回憶一下，我們定義我們的殭屍數組為 公開(public):
+
+```
+Zombie[] public zombies;
+```
+
+在 Solidity 裡，當你定義一個 `public` 變量的時候， 它將自動定義一個公開的 "getter" 同名方法， 所以如果你像要查看 id 為 `15` 的殭屍，你可以像一個函數一樣調用它： `zombies(15)`.
+
+這是如何在外面的前端界面中寫一個 JavaScript 方法來傳入一個殭屍 id，在我們的合同中查詢那個殭屍並返回結果
+
+> 注意: 本課中所有的示例代碼都使用 Web3.js 的 1.0 版，此版本使用的是 Promises 而不是回調函數。你在線上看到的其他教程可能還在使用老版的 Web3.js。在1.0版中，語法改變了不少。如果你從其他教程中複製代碼，先確保你們使用的是相同版本的Web3.js。
+
+```js
+function getZombieDetails(id) {
+  return cryptoZombies.methods.zombies(id).call();
+}
+
+// 調用函數並做一些其他事情
+getZombieDetails(15)
+.then(function(result) {
+  console.log("Zombie 15: " + JSON.stringify(result));
+});
+```
+
+我們來看看這裡都做了什麼
+
+`cryptoZombies.methods.zombies(id).call()` 將和 Web3 提供者節點通信，告訴它返回從我們的合約中的 `Zombie[] public zombies`，`id`為傳入參數的殭屍信息。
+
+注意這是**異步的**，就像從外部服務器中調用API。所以 Web3 在這裡返回了一個 Promises. (如果你對 JavaScript的 Promises 不瞭解，最好先去學習一下這方面知識再繼續)。
+
+一旦那個 `promise` 被 `resolve`，(意味著我們從 Web3 提供者那裡獲得了響應)，我們的例子代碼將執行 `then` 語句中的代碼，在控制台打出 `result`。
+
+result 是一個像這樣的 JavaScript 對象：
+
+```json
+{
+  "name": "H4XF13LD MORRIS'S COOLER OLDER BROTHER",
+  "dna": "1337133713371337",
+  "level": "9999",
+  "readyTime": "1522498671",
+  "winCount": "999999999",
+  "lossCount": "0" // Obviously.
+}
+```
+
+我們可以用一些前端邏輯代碼來解析這個對象並在前端界面友好展示。
+
+### 實戰練習
+
+我們已經幫你把 `getZombieDetails` 複製進了代碼。
+
+* 先為 `zombieToOwner` 創建一個類似的函數。如果你還記得 `ZombieFactory.sol`，我們有一個長這樣的映射：
+
+```
+mapping (uint => address) public zombieToOwner;
+```
+
+定義一個 JavaScript 方法，取名為 `zombieToOwner`。和上面的 `getZombieDetails` 類似， 它將接收一個 `id` 作為參數，並返回一個 Web3.js `call` 我們合約裡的 `zombieToOwner`。
+
+* 之後在下面，為 `getZombiesByOwner` 定義一個方法。如果你還能記起 `ZombieHelper.sol`，這個方法定義像這樣：
+
+```js
+function getZombiesByOwner(address _owner)
+```
+
+我們的 `getZombiesByOwner` 方法將接收 `owner` 作為參數，並返回一個對我們函數 `getZombiesByOwner` 的 Web3.js `call`
+
+### 完整範例
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>CryptoZombies front-end</title>
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="web3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="cryptozombies_abi.js"></script>
+  </head>
+  <body>
+
+    <script>
+      var cryptoZombies;
+
+      function startApp() {
+        var cryptoZombiesAddress = "YOUR_CONTRACT_ADDRESS";
+        cryptoZombies = new web3js.eth.Contract(cryptoZombiesABI, cryptoZombiesAddress);
+      }
+
+      function getZombieDetails(id) {
+        return cryptoZombies.methods.zombies(id).call()
+      }
+
+      function zombieToOwner(id) {
+        return cryptoZombies.methods.zombieToOwner(id).call()
+      }
+
+      function getZombiesByOwner(owner) {
+        return cryptoZombies.methods.getZombiesByOwner(owner).call()
+      }
+
+      window.addEventListener('load', function() {
+
+        // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+        if (typeof web3 !== 'undefined') {
+          // Use Mist/MetaMask's provider
+          web3js = new Web3(web3.currentProvider);
+        } else {
+          // Handle the case where the user doesn't have Metamask installed
+          // Probably show them a message prompting them to install Metamask
+        }
+
+        // Now you can start your app & access web3 freely:
+        startApp()
+
+      })
+    </script>
+  </body>
+</html>
+```
+
+## 第5章: MetaMask 和賬戶
+
+太棒了！你成功地寫了一些前端代碼來和你的第一個智能合約交互。
+
+接下來我們綜合一下，比如我們想讓我們應用的首頁顯示用戶的整個殭屍大軍。
+
+毫無疑問我們首先需要用 `getZombiesByOwner(owner)` 來查詢當前用戶的所有殭屍 ID。
+
+但是我們的 Solidity 合約需要 `owner` 作為 Solidity `address`。我們如何能知道應用用戶的地址呢？
+
+### 獲得 MetaMask中的用戶賬戶
+
+MetaMask 允許用戶在擴展中管理多個賬戶。
+
+我們可以通過這樣來獲取 `web3` 變量中激活的當前賬戶：
+
+```js
+var userAccount = web3.eth.accounts[0]
+```
+
+因為用戶可以隨時在 MetaMask 中切換賬戶，我們的應用需要監控這個變數，一旦改變就要相應更新界面。例如，若用戶的首頁展示它們的殭屍大軍，當他們在 MetaMask 中切換了賬號，我們就需要更新頁面來展示新選擇的賬戶的殭屍大軍。
+
+我們可以通過 `setInterval` 方法來做:
+
+```js
+var accountInterval = setInterval(function() {
+  // 檢查賬戶是否切換
+  if (web3.eth.accounts[0] !== userAccount) {
+    userAccount = web3.eth.accounts[0];
+    // 調用一些方法來更新界面
+    updateInterface();
+  }
+}, 100);
+```
+
+這段代碼做的是，每100毫秒檢查一次 `userAccount` 是否還等於 `web3.eth.accounts[0]` (比如：用戶是否還激活了那個賬戶)。若不等，則將當前激活用戶賦值給 `userAccount`，然後調用一個函數來更新界面。
+
+### 實戰練習
+
+我們來讓應用在頁面第一次加載的時候顯示用戶的殭屍大軍，監控當前 MetaMask 中的激活賬戶，並在賬戶發生改變的時候刷新顯示。
+
+1. 定義一個名為`userAccount`的變量，不給任何初始值。
+1. 在 `startApp()` 函數的最後，複製粘貼上面樣板代碼中的 `accountInterval` 方法進去。
+1. 將 `updateInterface();` 替換成一個 `getZombiesByOwner` 的 `call` 函數，並傳入 userAccount。
+1. 在 `getZombiesByOwner` 後面鏈式調用 `then` 語句，並將返回的結果傳入名為 `displayZombies` 的函數。 (語句像這樣: `.then(displayZombies);`).
+
+我們還沒有 `displayZombies` 函數，將於下一章實現。
+
+#### 完整範例
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>CryptoZombies front-end</title>
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="web3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="cryptozombies_abi.js"></script>
+  </head>
+  <body>
+
+    <script>
+      var cryptoZombies;
+      var userAccount;
+
+      function startApp() {
+        var cryptoZombiesAddress = "YOUR_CONTRACT_ADDRESS";
+        cryptoZombies = new web3js.eth.Contract(cryptoZombiesABI, cryptoZombiesAddress);
+
+        var accountInterval = setInterval(function() {
+          // 檢查賬戶是否切換
+          if (web3.eth.accounts[0] !== userAccount) {
+            userAccount = web3.eth.accounts[0];
+            // 調用一些方法來更新界面
+            getZombiesByOwner(userAccount).then(displayZombies);
+          }
+        }, 100);
+      }
+
+      function getZombieDetails(id) {
+        return cryptoZombies.methods.zombies(id).call()
+      }
+
+      function zombieToOwner(id) {
+        return cryptoZombies.methods.zombieToOwner(id).call()
+      }
+
+      function getZombiesByOwner(owner) {
+        return cryptoZombies.methods.getZombiesByOwner(owner).call()
+      }
+
+      window.addEventListener('load', function() {
+
+        // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+        if (typeof web3 !== 'undefined') {
+          // Use Mist/MetaMask's provider
+          web3js = new Web3(web3.currentProvider);
+        } else {
+          // Handle the case where the user doesn't have Metamask installed
+          // Probably show them a message prompting them to install Metamask
+        }
+
+        // Now you can start your app & access web3 freely:
+        startApp()
+
+      })
+    </script>
+  </body>
+</html>
+```
+
+## 第6章：顯示殭屍大軍
+
+如果我們不向你展示如何顯示你從合約獲取的數據，那這個教程就太不完整了。
+
+在實際應用中，你肯定想要在應用中使用諸如 React 或 Vue.js 這樣的前端框架來讓你的前端開發變得輕鬆一些。不過要教授 React 或者 Vue.js 知識的話，就大大超出了本教程的範疇——它們本身就需要幾節課甚至一整個教程來教學。
+
+所以為了讓 CryptoZombies.io 專注於以太坊和智能合約，我們將使用 JQuery 來做一個快速示例，展示如何解析和展示從智能合約中拿到的數據。
+
+### 顯示殭屍數據：一個簡易的例子
+
+我們已經在代碼中添加了一個空的代碼塊 `<div id="zombies"></div>`， 在 `displayZombies` 方法中也同樣有一個。
+
+回憶一下在之前章節中我們在 `startApp()` 方法內部調用了 `displayZombies` 並傳入了 `call getZombiesByOwner` 獲得的結果，它將被傳入一個殭屍ID數組，像這樣：
+
+```
+[0, 13, 47]
+```
+
+因為我們想讓我們的 `displayZombies` 方法做這些事:
+
+首先清除 `#zombies` 的內容以防裡面已經有什麼內容（這樣當用戶切換賬號的時候，之前賬號的殭屍大軍數據就會被清除）
+
+循環遍歷 `id`，對每一個id調用 `getZombieDetails(id)`， 從我們的合約中獲得這個殭屍的數據。
+
+將獲得的殭屍數據放進一個HTML模板中以格式化顯示，追加進 `#zombies` 裡面。
+
+再次聲明，我們只用了 JQuery，沒有任何模板引擎，所以會非常醜。不過這只是一個如何展示殭屍數據的示例而已。
+
+```js
+// 在合約中查找殭屍數據，返回一個對象
+getZombieDetails(id)
+.then(function(zombie) {
+  // 用 ES6 的模板語法來向HTML中注入變量
+  // 把每一個都追加進 #zombies div
+  $("#zombies").append(`<div class="zombie">
+    <ul>
+      <li>Name: ${zombie.name}</li>
+      <li>DNA: ${zombie.dna}</li>
+      <li>Level: ${zombie.level}</li>
+      <li>Wins: ${zombie.winCount}</li>
+      <li>Losses: ${zombie.lossCount}</li>
+      <li>Ready Time: ${zombie.readyTime}</li>
+    </ul>
+  </div>`);
+});
+```
+
+### 實戰練習
+
+我們為你創建了一個空的 `displayZombies` 方法。來一起實現它。
+
+1. 首先我們需要清空 `#zombies` 的內容。 用JQuery，你可以這樣做： `$("#zombies").empty();`。
+1. 接下來，我們要循環遍歷所有的 id，循環這樣用： `for (id of ids) {`
+1. 在循環內部，複製粘貼上面的代碼，對每一個id調用 `getZombieDetails(id)`，然後用 `$("#zombies").append(...)` 把內容追加進我們的 HTML 裡面。
