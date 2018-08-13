@@ -1143,7 +1143,7 @@ cryptoZombies.events.Transfer({ filter: { _to: userAccount } })
 }).on('error', console.error);
 ```
 
-看到了吧， 使用 `event` 和 `indexed` 字段對於監聽合約中的更改並將其反映到 DApp 的前端界面中是非常有用的做法。
+看到了吧， 使用 `event` 和 `indexed` 字段對於監聽合約中的更改，並將其反映到 DApp 的前端界面中是非常有用的做法。
 
 ### 查詢過去的事件
 
@@ -1159,11 +1159,11 @@ cryptoZombies.getPastEvents("NewZombie", { fromBlock: 0, toBlock: 'latest' })
 
 因為你可以用這個方法來查詢從最開始起的事件日誌，這就有了一個非常有趣的用例：**用事件來作為一種更便宜的存儲**。
 
-若你還能記得，在區塊鏈上保存數據是 Solidity 中最貴的操作之一。但是用事件就便宜太多太多了。
+若你還能記得，在區塊鏈上保存數據是 Solidity 中最貴的操作之一。但是用事件，就便宜太多太多了。
 
-這裡的短板是，事件不能從智能合約本身讀取。但是，如果你有一些數據需要永久性地記錄在區塊鏈中以便可以在應用的前端中讀取，這將是一個很好的用例。這些數據不會影響智能合約向前的狀態。
+這裡的缺點是，事件不能從智能合約本身讀取。但是，如果你有一些數據需要永久性地記錄在區塊鏈中，以便可以在應用的前端中讀取，這將是一個很好的用例。這些數據不會影響智能合約向前的狀態。
 
-舉個栗子，我們可以用事件來作為殭屍戰鬥的歷史紀錄——我們可以在每次殭屍攻擊別人以及有一方勝出的時候產生一個事件。智能合約不需要這些數據來計算任何接下來的事情，但是這對我們在前端向用戶展示來說是非常有用的東西。
+舉個例子，我們可以用事件來作為殭屍戰鬥的歷史紀錄，我們可以在每次殭屍攻擊別人，以及有一方勝出的時候產生一個事件。智能合約不需要這些數據來計算任何接下來的事情，但是這對我們在前端向用戶展示來說是非常有用的東西。
 
 ### Web3.js 事件 和 MetaMask
 
@@ -1193,3 +1193,186 @@ var czEvents = new web3Infura.eth.Contract(cryptoZombiesABI, cryptoZombiesAddres
 1. 在 `startApp()` 底部，為 `cryptoZombies.events.Transfer` 複製粘貼上面的2行事件監聽代碼塊
 1. 複製監聽 `Transfer` 事件的代碼塊，並用 `_to: userAccount` 過濾。要記得把 `cryptoZombies` 換成 `czEvents` 好在這 裡使用 Infura 而不是 MetaMask 來作為提供者。
 1. 用 `getZombiesByOwner(userAccount).then(displayZombies);` 來更新界面
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>CryptoZombies front-end</title>
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="web3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="cryptozombies_abi.js"></script>
+  </head>
+  <body>
+    <div id="txStatus"></div>
+    <div id="zombies"></div>
+
+    <script>
+      var cryptoZombies;
+      var userAccount;
+
+      function startApp() {
+        var cryptoZombiesAddress = "YOUR_CONTRACT_ADDRESS";
+        cryptoZombies = new web3js.eth.Contract(cryptoZombiesABI, cryptoZombiesAddress);
+
+        var accountInterval = setInterval(function() {
+          // Check if account has changed
+          if (web3.eth.accounts[0] !== userAccount) {
+            userAccount = web3.eth.accounts[0];
+            // Call a function to update the UI with the new account
+            getZombiesByOwner(userAccount)
+            .then(displayZombies);
+          }
+        }, 100);
+
+        var web3Infura = new Web3(new Web3.providers.WebsocketProvider("wss://mainnet.infura.io/ws"));
+        var czEvents = new web3Infura.eth.Contract(cryptoZombiesABI, cryptoZombiesAddress);
+
+        czEvents.events.Transfer({ filter: { _to: userAccount } })
+        .on("data", function(event) {
+          let data = event.returnValues;
+          getZombiesByOwner(userAccount).then(displayZombies);
+        }).on('error', console.error);
+
+      }
+
+      function displayZombies(ids) {
+        $("#zombies").empty();
+        for (id of ids) {
+          // Look up zombie details from our contract. Returns a `zombie` object
+          getZombieDetails(id)
+          .then(function(zombie) {
+            // Using ES6's "template literals" to inject variables into the HTML.
+            // Append each one to our #zombies div
+            $("#zombies").append(`<div class="zombie">
+              <ul>
+                <li>Name: ${zombie.name}</li>
+                <li>DNA: ${zombie.dna}</li>
+                <li>Level: ${zombie.level}</li>
+                <li>Wins: ${zombie.winCount}</li>
+                <li>Losses: ${zombie.lossCount}</li>
+                <li>Ready Time: ${zombie.readyTime}</li>
+              </ul>
+            </div>`);
+          });
+        }
+      }
+
+      function createRandomZombie(name) {
+        // This is going to take a while, so update the UI to let the user know
+        // the transaction has been sent
+        $("#txStatus").text("Creating new zombie on the blockchain. This may take a while...");
+        // Send the tx to our contract:
+        return cryptoZombies.methods.createRandomZombie(name)
+        .send({ from: userAccount })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Successfully created " + name + "!");
+          // Transaction was accepted into the blockchain, let's redraw the UI
+          getZombiesByOwner(userAccount).then(displayZombies);
+        })
+        .on("error", function(error) {
+          // Do something to alert the user their transaction has failed
+          $("#txStatus").text(error);
+        });
+      }
+
+      function feedOnKitty(zombieId, kittyId) {
+        $("#txStatus").text("Eating a kitty. This may take a while...");
+        return cryptoZombies.methods.feedOnKitty(zombieId, kittyId)
+        .send({ from: userAccount })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Ate a kitty and spawned a new Zombie!");
+          getZombiesByOwner(userAccount).then(displayZombies);
+        })
+        .on("error", function(error) {
+          $("#txStatus").text(error);
+        });
+      }
+
+      function levelUp(zombieId) {
+        $("#txStatus").text("Leveling up your zombie...");
+        return cryptoZombies.methods.levelUp(zombieId)
+        .send({ from: userAccount, value: web3.utils.toWei("0.001", "ether") })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Power overwhelming! Zombie successfully leveled up");
+        })
+        .on("error", function(error) {
+          $("#txStatus").text(error);
+        });
+      }
+
+      function getZombieDetails(id) {
+        return cryptoZombies.methods.zombies(id).call()
+      }
+
+      function zombieToOwner(id) {
+        return cryptoZombies.methods.zombieToOwner(id).call()
+      }
+
+      function getZombiesByOwner(owner) {
+        return cryptoZombies.methods.getZombiesByOwner(owner).call()
+      }
+
+      window.addEventListener('load', function() {
+
+        // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+        if (typeof web3 !== 'undefined') {
+          // Use Mist/MetaMask's provider
+          web3js = new Web3(web3.currentProvider);
+        } else {
+          // Handle the case where the user doesn't have Metamask installed
+          // Probably show them a message prompting them to install Metamask
+        }
+
+        // Now you can start your app & access web3 freely:
+        startApp()
+
+      })
+    </script>
+  </body>
+</html>
+```
+
+## 第10章: 放在一起
+
+恭喜啊少年，你已經成功編寫了一個 Web3.js 前端界面來和你的智能合約交互
+
+### 接下來的步驟
+
+這節課的內容非常基礎。我們想要給你展示和智能合約交互的核心內容，而並不想用太多的時間來教你完整實現。我們也不想花太多時間在HTML/CSS上，因為大部分人都已經知道了。
+
+所以我們把一些實現略去了。這裡是你要完整實現所需要完成的基本事項列表：
+
+1. 為 `attack`, `changeName`, `changeDna` 以及 ERC721 函數 `transfer`, `ownerOf`, `balanceOf` 等實現前端函數。這些函數的實現將和我們講過的 `send` 事務的函數非常相似。
+1. 實現一個“管理界面”，在那裡你可以調用 `setKittyContractAddress`, `setLevelUpFee`, 以及 `withdraw`。再次，在前端這塊沒有什麼特別的代碼——這些實現之間將非常相似。你應該保證從部署合同時候相同的以太坊地址調用這些函數，因為他們都有 `onlyOwner` 修飾符。
+1. 在應用裡我們還應該實現一些其他的界面：
+  1. 一個殭屍頁面，在那裡你可以查看一個特定殭屍的信息並可以分享它的鏈接。這個頁面應該渲染殭屍的外形，展示它的名字，它的所有者（以及用戶主頁的鏈接），它的輸贏次數，它的戰鬥記錄等等。
+  2. 一個用戶界面，在那裡你可以查看用戶的殭屍大軍並分享它的鏈接。
+  3. 一個主頁，就是用戶頁面的變體，可以展示當前用戶的殭屍大軍（正如我們在index.html）裡面實現的那樣。
+1. 界面中的一些方法允許用戶用 CryptoKitties 喂食殭屍。我們可以給每一個殭屍添加一個按鈕，叫做“給我投食”，再給一個輸入框讓用戶輸入一個貓咪的ID（或者一個貓咪的網址，比如https://www.cryptokitties.co/kitty/578397），它將觸發我們的 feedOnKitty 函數。
+1. 界面中的一些方法將讓用戶用來攻擊其他用戶的殭屍
+
+實現這點的一個方法是，當用戶瀏覽其他用戶的頁面的時候，可以在對方殭屍旁邊顯示一個按鈕，叫做“攻擊這頭殭屍”。當用戶點擊的時候，可以彈出一個模塊，展示當前用戶的殭屍大軍並詢問用戶“你想用哪頭殭屍出戰？”
+
+在用戶的主頁，也可以在每個殭屍旁邊顯示一個按鈕，叫做“攻擊一個殭屍”。當用戶點擊的時候，可以彈出一個模塊，展示一個搜索框，可以讓用戶輸入殭屍ID或者網址來搜索，或者也可以有一個按鈕叫做“隨機攻擊一頭殭屍”，將隨機搜索一頭殭屍來。
+
+我們也建議你將在冷卻期的殭屍用特殊的顏色顯示，比如使其變成灰色。這樣界面就能告訴用戶不能用冷卻期的殭屍來進攻。
+
+1. 在用戶的主頁，每一個殭屍也應該有選項可以更改名字、DNA、以及升級（通過付費）。若用戶等級不到，無法使用的選項應該標灰。
+1. 對於新用戶，我們應該顯示一個歡迎信息，並讓其確認用 createRandomZombie()創建一個新殭屍。
+1. 也可以為我們的智能合約添加一個包含indexed 的用戶地址屬性的 Attack 事件。這樣就可以創建實時通知了——我們可以在用戶的殭屍遭受攻擊的時候彈出一條通知，這樣他們可以看到誰在用什麼殭屍攻擊他們並做出報復。
+1. 我們也許還想實現一些前端緩存層，這樣就不用總是為了相同的數據去訪問Infura。（在我們當前實現中，displayZombies 將在每次頁面刷新的時候為每一個殭屍調用 getZombieDetails，但是實際中我們將只需要為新加入的殭屍調用這個函數）
+1. 一個實時聊天室，這樣你就可以在你擊潰別人的殭屍大軍的同時嘲諷他們？
+
+因為這將需要大量的前端代碼來實現全部的界面（HTML， CSS， JavaScript 以及諸如 React 和 Vue.js 這樣的框架）。光實現一個這樣的前端界面也許會花費多達10節課，所以我們將這個光榮的任務交給你自己去完成。
+
+注意：儘管智能合約是去中心化的。這個用來和DApp交互的前端界面依然需要放在我們中心化的網絡服務器上。不過，有了我們正在內測的Loom Network SDK，很快你就可以在應用自己的DApp鏈上運行前端界面而不是中心化的網絡服務器。這樣在以太坊和 Loom DApp 鏈上，你的整個應用都100%運行在區塊鏈上了。
+
+## 總結
+
+學完第六課。你現在有了編寫智能合約和前端界面來讓用戶交互的所需技能了。
+
+在下一課。 我們將涉及這個歷程中最後缺失的一部分，將你的智能合約部署到以太坊。
+
+知道你已經急不可耐了，點擊「下一章」領取你的獎勵吧。
