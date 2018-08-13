@@ -605,6 +605,27 @@ getZombieDetails(id)
 });
 ```
 
+### 如何來展示殭屍元素呢？
+
+在上面的例子中，我們只是簡單地用字符串來顯示 DNA。不過在你的 DApp 中，你將需要把 DNA 轉換成圖片來顯示你的殭屍。
+
+我們通過把 DNA 字符串分割成小的字符串來做到這一點，每2位數字代表一個圖片，類似這樣：
+
+```js
+// 得到一個 1-7 的數字來表示殭屍的頭:
+var head = parseInt(zombie.dna.substring(0, 2)) % 7 + 1
+
+// 我們有7張頭部圖片：
+var headSrc = "../assets/zombieparts/head-" + i + ".png"
+每一個模塊都用 CSS 絕對定位來顯示，在一個上面疊加另外一個。
+```
+
+如果你想看我們的具體實現，我們將用來展示殭屍形象的 Vue.js 模塊開源了：[點擊這裡](https://github.com/loomnetwork/zombie-char-component).
+
+不過，因為那個文件中有太多行代碼， 超出了本教程的討論範圍。我們依然還是使用上面超級簡單的 JQuery 實現，把美化殭屍的工作作為家庭作業留給你了😉
+
+* [loomnetwork/zombie-char-component - Github](https://github.com/loomnetwork/zombie-char-component)
+
 ### 實戰練習
 
 我們為你創建了一個空的 `displayZombies` 方法。來一起實現它。
@@ -612,3 +633,285 @@ getZombieDetails(id)
 1. 首先我們需要清空 `#zombies` 的內容。 用JQuery，你可以這樣做： `$("#zombies").empty();`。
 1. 接下來，我們要循環遍歷所有的 id，循環這樣用： `for (id of ids) {`
 1. 在循環內部，複製粘貼上面的代碼，對每一個id調用 `getZombieDetails(id)`，然後用 `$("#zombies").append(...)` 把內容追加進我們的 HTML 裡面。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>CryptoZombies front-end</title>
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="web3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="cryptozombies_abi.js"></script>
+  </head>
+  <body>
+    <div id="zombies"></div>
+
+    <script>
+      var cryptoZombies;
+      var userAccount;
+
+      function startApp() {
+        var cryptoZombiesAddress = "YOUR_CONTRACT_ADDRESS";
+        cryptoZombies = new web3js.eth.Contract(cryptoZombiesABI, cryptoZombiesAddress);
+
+        var accountInterval = setInterval(function() {
+          // Check if account has changed
+          if (web3.eth.accounts[0] !== userAccount) {
+            userAccount = web3.eth.accounts[0];
+            // Call a function to update the UI with the new account
+            getZombiesByOwner(userAccount)
+            .then(displayZombies);
+          }
+        }, 100);
+      }
+
+      function displayZombies(ids) {
+        $("#zombies").empty();
+        for (id of ids) {
+          getZombieDetails(id)
+          .then(function(zombie) {
+            $("#zombies").append(`<div class="zombie">
+            <ul>
+              <li>Name: ${zombie.name}</li>
+              <li>DNA: ${zombie.dna}</li>
+              <li>Level: ${zombie.level}</li>
+              <li>Wins: ${zombie.winCount}</li>
+              <li>Losses: ${zombie.lossCount}</li>
+              <li>Ready Time: ${zombie.readyTime}</li>
+            </ul>
+          </div>`);
+          });
+        }
+      }
+
+      function getZombieDetails(id) {
+        return cryptoZombies.methods.zombies(id).call()
+      }
+
+      function zombieToOwner(id) {
+        return cryptoZombies.methods.zombieToOwner(id).call()
+      }
+
+      function getZombiesByOwner(owner) {
+        return cryptoZombies.methods.getZombiesByOwner(owner).call()
+      }
+
+      window.addEventListener('load', function() {
+
+        // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+        if (typeof web3 !== 'undefined') {
+          // Use Mist/MetaMask's provider
+          web3js = new Web3(web3.currentProvider);
+        } else {
+          // Handle the case where the user doesn't have Metamask installed
+          // Probably show them a message prompting them to install Metamask
+        }
+
+        // Now you can start your app & access web3 freely:
+        startApp()
+
+      })
+    </script>
+  </body>
+</html>
+```
+
+## 第7章: 發送事務
+
+這下我們的界面能檢測用戶的 MetaMask 賬戶，並自動在首頁顯示它們的殭屍大軍了，有沒有很棒？
+
+現在我們來看看用 `send` 函數來修改我們智能合約裡面的數據。
+
+相對 `call` 函數，`send` 函數有如下主要區別:
+
+1. `send` 一個事務需要一個 `from` 地址來表明誰在調用這個函數（也就是你 Solidity 代碼裡的 `msg.sender` )。 我們需要這是我們 DApp 的用戶，這樣一來 MetaMask 才會彈出提示讓他們對事務簽名。
+1. `send` 一個事務將花費 gas
+1. 在用戶 `send` 一個事務到該事務對區塊鏈產生實際影響之間有一個不可忽略的延遲。這是因為我們必須等待事務被包含進一個區塊裡，以太坊上一個區塊的時間平均下來是15秒左右。如果當前在以太坊上有大量掛起事務或者用戶發送了過低的 gas 價格，我們的事務可能需要等待數個區塊才能被包含進去，往往可能花費數分鐘。
+
+所以在我們的代碼中我們需要編寫邏輯來處理這部分異步特性。
+
+### 生成一個殭屍
+
+我們來看一個合約中一個新用戶將要調用的第一個函數: `createRandomZombie`.
+
+作為複習，這裡是合約中的 Solidity 代碼：
+
+```js
+function createRandomZombie(string _name) public {
+  require(ownerZombieCount[msg.sender] == 0);
+  uint randDna = _generateRandomDna(_name);
+  randDna = randDna - randDna % 100;
+  _createZombie(_name, randDna);
+}
+```
+
+這是如何在用 MetaMask 在 Web3.js 中調用這個函數的示例:
+
+```js
+function createRandomZombie(name) {
+  // 這將需要一段時間，所以在界面中告訴用戶這一點
+  // 事務被發送出去了
+  $("#txStatus").text("正在區塊鏈上創建殭屍，這將需要一會兒...");
+  // 把事務發送到我們的合約:
+  return cryptoZombies.methods.createRandomZombie(name)
+  .send({ from: userAccount })
+  .on("receipt", function(receipt) {
+    $("#txStatus").text("成功生成了 " + name + "!");
+    // 事務被區塊鏈接受了，重新渲染界面
+    getZombiesByOwner(userAccount).then(displayZombies);
+  })
+  .on("error", function(error) {
+    // 告訴用戶合約失敗了
+    $("#txStatus").text(error);
+  });
+}
+```
+
+我們的函數 `send` 一個事務到我們的 Web3 提供者，然後鏈式添加一些事件監聽:
+
+* `receipt` 將在合約被包含進以太坊區塊上以後被觸發，這意味著殭屍被創建並保存進我們的合約了。
+* `error` 將在事務未被成功包含進區塊後觸發，比如用戶未支付足夠的 gas。我們需要在界面中通知用戶事務失敗以便他們可以再次嘗試。
+  
+> 注意:你可以在調用 `send` 時選擇指定 `gas` 和 `gasPrice`，例如： `.send({ from: userAccount, gas: 3000000 })`。如果你不指定，MetaMask 將讓用戶自己選擇數值。
+
+* [ethereum/web3.js - Github](https://github.com/ethereum/web3.js)
+
+### 實戰練習
+
+我們添加了一個`div`， 指定 ID 為 `txStatus`，這樣我們可以通過更新這個 div 來通知用戶事務的狀態。
+
+1. 在 `displayZombies`下面， 複製粘貼上面 `createRandomZombie` 的代碼。
+2. 我們來實現另外一個函數 `feedOnKitty`：
+
+調用 `feedOnKitty` 的邏輯幾乎一樣，我們將發送一個事務來調用這個函數，並且成功的事務會為我們創建一個殭屍，所以我們希望在成功後重新繪製界面。
+
+在 `createRandomZombie` 下面複製粘貼它的代碼，改動這些地方:
+
+  1. 給其命名為 `feedOnKitty`， 它將接收兩個參數 `zombieId` 和 `kittyId`
+  2. `#txStatus` 的文本內容將更新為: "正在吃貓咪，這將需要一會兒..."
+  3. 讓其調用我們合約裡面的 `feedOnKitty` 函數並傳入相同的參數
+  4. `#txStatus` 裡面的的成功信息應該是 "吃了一隻貓咪並生成了一隻新殭屍！"
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>CryptoZombies front-end</title>
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="web3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="cryptozombies_abi.js"></script>
+  </head>
+  <body>
+    <div id="txStatus"></div>
+    <div id="zombies"></div>
+
+    <script>
+      var cryptoZombies;
+      var userAccount;
+
+      function startApp() {
+        var cryptoZombiesAddress = "YOUR_CONTRACT_ADDRESS";
+        cryptoZombies = new web3js.eth.Contract(cryptoZombiesABI, cryptoZombiesAddress);
+
+        var accountInterval = setInterval(function() {
+          // Check if account has changed
+          if (web3.eth.accounts[0] !== userAccount) {
+            userAccount = web3.eth.accounts[0];
+            // Call a function to update the UI with the new account
+            getZombiesByOwner(userAccount)
+            .then(displayZombies);
+          }
+        }, 100);
+      }
+
+      function displayZombies(ids) {
+        $("#zombies").empty();
+        for (id of ids) {
+          // Look up zombie details from our contract. Returns a `zombie` object
+          getZombieDetails(id)
+          .then(function(zombie) {
+            // Using ES6's "template literals" to inject variables into the HTML.
+            // Append each one to our #zombies div
+            $("#zombies").append(`<div class="zombie">
+              <ul>
+                <li>Name: ${zombie.name}</li>
+                <li>DNA: ${zombie.dna}</li>
+                <li>Level: ${zombie.level}</li>
+                <li>Wins: ${zombie.winCount}</li>
+                <li>Losses: ${zombie.lossCount}</li>
+                <li>Ready Time: ${zombie.readyTime}</li>
+              </ul>
+            </div>`);
+          });
+        }
+      }
+
+      function createRandomZombie(name) {
+        // 這將需要一段時間，所以在界面中告訴用戶這一點
+        // 事務被發送出去了
+        $("#txStatus").text("正在区块链上创建僵尸，这将需要一会儿...");
+        // 把事務發送到我們的合約:
+        return cryptoZombies.methods.createRandomZombie(name)
+        .send({ from: userAccount })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("成功生成了 " + name + "!");
+          // 事務被區塊鏈接受了，重新渲染界面
+          getZombiesByOwner(userAccount).then(displayZombies);
+        })
+        .on("error", function(error) {
+          // 告訴用戶合約失敗了
+          $("#txStatus").text(error);
+        });
+      }
+
+      function feedOnKitty(zombieId, kittyId) {
+        // 這將需要一段時間，所以在界面中告訴用戶這一點
+        // 事務被發送出去了
+        $("#txStatus").text("正在吃猫咪，这将需要一会儿...");
+        // 把事務發送到我們的合約:
+        return cryptoZombies.methods.feedOnKitty(zombieId, kittyId)
+        .send({ from: userAccount })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("吃了一只猫咪并生成了一只新僵尸！");
+          // 事務被區塊鏈接受了，重新渲染界面
+          getZombiesByOwner(userAccount).then(displayZombies);
+        })
+        .on("error", function(error) {
+          // 告訴用戶合約失敗了
+          $("#txStatus").text(error);
+        });
+      }
+
+      function getZombieDetails(id) {
+        return cryptoZombies.methods.zombies(id).call()
+      }
+
+      function zombieToOwner(id) {
+        return cryptoZombies.methods.zombieToOwner(id).call()
+      }
+
+      function getZombiesByOwner(owner) {
+        return cryptoZombies.methods.getZombiesByOwner(owner).call()
+      }
+
+      window.addEventListener('load', function() {
+
+        // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+        if (typeof web3 !== 'undefined') {
+          // Use Mist/MetaMask's provider
+          web3js = new Web3(web3.currentProvider);
+        } else {
+          // Handle the case where the user doesn't have Metamask installed
+          // Probably show them a message prompting them to install Metamask
+        }
+
+        // Now you can start your app & access web3 freely:
+        startApp()
+
+      })
+    </script>
+  </body>
+</html>
+```
