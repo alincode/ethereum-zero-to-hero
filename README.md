@@ -39,6 +39,7 @@
 ## Smart Contracts
 
 * [CryptoZombies - Learn to code games on Ethereum. Powered by Loom Network](https://cryptozombies.io/)
+  * [loomnetwork/cryptozombie-lessons](https://github.com/loomnetwork/cryptozombie-lessons)
 * [Developing Ethereum Smart Contracts for Beginners](https://coursetro.com/courses/20/Developing-Ethereum-Smart-Contracts-for-Beginners)
 * [Smart Contracts and Decentralized Apps 101](https://coursetro.com/posts/code/98/Smart-Contracts-and-Decentralized-Apps-101)
 * Building Smart Contracts with Remix by **Nina Breznik & Alex Praetorius**
@@ -97,6 +98,11 @@
 * EDCON (Community Ethereum Development Conference)
   * [Community Ethereum Development Conference 2018](https://edcon.io/)
   * [Youtube playlist - EDCON Toronto - 2018](EDCON/playlist-PL6-IF807eaBG5sH-SQXlosqKRM2BZkrqw.md) created by [ETHWORLD](https://www.youtube.com/channel/UC7tELjcjz84KlbQJf0t-euQ)
+* Ethereum Developers Conference (Devcon)
+  * [Devcon3](https://ethereumfoundation.org/devcon3/)
+    * [Ethereum Foundation](https://www.youtube.com/channel/UCNOfzGXD_C9YMYmnefmPH0g/playlists)
+  * Devcon2
+    * [Youtube](https://www.youtube.com/playlist?list=PLaM7G4Llrb7xqzgOwbvNv63_KM7VH84Rd)
 
 ## Mise
 
@@ -106,6 +112,7 @@
 * [Ethereum Network Status](https://ethstats.net/)
 * [Week in Ethereum News](http://www.weekinethereum.com/)
 * [reddit - ethereum](https://www.reddit.com/r/ethereum/top/?t=week)
+* [Ethereum Stack Exchange](https://ethereum.stackexchange.com/)
 
 ### framework / Module
 
