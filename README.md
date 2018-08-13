@@ -1,8 +1,10 @@
 # Ethereum zero to hero
 
 * [Ethereum Project](https://ethereum.org/)
-* [ethereum/wiki Wiki · GitHub](https://github.com/ethereum/wiki/wiki)
+* [ethereum/wiki Wiki - GitHub](https://github.com/ethereum/wiki/wiki)
+  * [Ethereum Development Tutorial](https://github.com/ethereum/wiki/wiki/Ethereum-Development-Tutorial)
 * [Readme for Chinese version](README_CN.md)
+* [Ethereum Network](https://ethereum.network/learn)
 
 ## Intro
 
@@ -103,6 +105,8 @@
     * [Ethereum Foundation](https://www.youtube.com/channel/UCNOfzGXD_C9YMYmnefmPH0g/playlists)
   * Devcon2
     * [Youtube](https://www.youtube.com/playlist?list=PLaM7G4Llrb7xqzgOwbvNv63_KM7VH84Rd)
+* BuildETH 2018
+  * [Youtube](BuildETH/playlist-PLyHOL7sisyL4MeVSPh7kNVMm4zLpz1rPK.md)
 
 ## Mise
 
@@ -113,10 +117,23 @@
 * [Week in Ethereum News](http://www.weekinethereum.com/)
 * [reddit - ethereum](https://www.reddit.com/r/ethereum/top/?t=week)
 * [Ethereum Stack Exchange](https://ethereum.stackexchange.com/)
+* [Livepeer](https://livepeer.org/)
+* [Crypto Explained by Jackson Palmer - Youtube](https://www.youtube.com/playlist?list=PLm-Jv-jBYUmKji9kssW1q8Gs0YbKKMcvH)
+* [blockchain.mit.edu](http://blockchain.mit.edu/)
 
+### Ebook
+
+* [ethereumbook/ethereumbook](https://github.com/ethereumbook/ethereumbook): Mastering Ethereum, by Andreas M. Antonopoulos, Gavin Wood https://ethereumbook.info/
+
+### weekly
+
+* [Crypto Weekly by Jackson Palmer - Youtube](https://www.youtube.com/playlist?list=PLm-Jv-jBYUmLp6NDDIwvyFbaZxROOmOk2)
+* [Zero Knowledge - Anna Rose](http://www.zeroknowledge.fm/hosts/anna)
+  
 ### framework / Module
 
 * [GitHub - trufflesuite/truffle: The most popular Ethereal development framework](https://github.com/trufflesuite/truffle)
+  * [Truffle Suite | Tutorials | Ethereum Pet Shop - Your First Dapp](https://truffleframework.com/tutorials/pet-shop)
 * [GitHub - ethereum/solc-js: Javascript bindings for the solidity compiler](https://github.com/ethereum/solc-js)
 
 ### small project / example
@@ -137,12 +154,10 @@
 
 ## Glossary
 
-
 name | description
 ---------|----------
 ETH | ETH is the main currency on the Ethereum network. However, Ethereum can support multiple currencies and ETH eventually will not have privileged status.
 Gas | Executing transactions on Ethereum either runs computations or stores data. This Costs the network CPU cycles or storage space. That cost is paid for by the account that initiates the transaction. The payment is called "gas". Gas is currently paid using ETH.
-
 
 ### License
 
