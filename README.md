@@ -6,6 +6,13 @@
 * [Readme for Chinese version](README_CN.md)
 * [Ethereum Network](https://ethereum.network/learn)
 
+### Youtube Channel
+
+* [Dapp University](https://www.youtube.com/channel/UCY0xL8V6NzzFcwzHCgB8orQ)
+* [Ethereum Foundation](https://www.youtube.com/channel/UCNOfzGXD_C9YMYmnefmPH0g/)
+* [What't Solidity](https://www.youtube.com/channel/UCaWes1eWQ9TbzA695gl_PtA)
+* [Ivan on Tech](https://www.youtube.com/user/LiljeqvistIvan)
+
 ## Intro
 
 ### Slides
@@ -37,6 +44,15 @@
 ### Slides
 
 * [Nina Breznik - How to build a DApp](https://slides.com/ninabreznik/deck-11-13/fullscreen)
+
+### example
+
+* [kyriediculous/dapp-tutorial](https://github.com/kyriediculous/dapp-tutorial)
+  * [Created using browser-solidity: Realtime Ethereum Contract Compiler and Runtime. 
+ Load this file by pasting this gists URL or ID at https://ethereum.github.io/browser-solidity/#version=soljson-v0.4.21+commit.dfe3193c.js&amp;optimize=false&amp;gist=](https://gist.github.com/anonymous/9bd71a676e6f96f096b14a8afe6e368b)
+  * [Create your first Ethereum dAPP with Web3 and Vue.JS (Part 1)](https://itnext.io/create-your-first-ethereum-dapp-with-web3-and-vue-js-c7221af1ed82)
+  * [Create your first Ethereum dAPP with Web3 and Vue.JS (Part 2)](https://itnext.io/create-your-first-ethereum-dapp-with-web3-and-vue-js-part-2-52248a74d58a)
+  * [Create your first Ethereum dAPP with Web3 and Vue.JS (Part 3)](https://itnext.io/create-your-first-ethereum-dapp-with-web3-and-vue-js-part-3-dc4f82fba4b4)
 
 ## Smart Contracts
 
