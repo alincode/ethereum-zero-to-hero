@@ -16,7 +16,6 @@
   * [線上讀書會 凱捷 主講 加密殭屍以太坊程式教學100%  part2 - YouTube](https://www.youtube.com/watch?v=gUCMHlfXe4I)
   * [線上讀書會 凱捷 主講 加密殭屍以太坊程式教學100% part3 - YouTube](https://www.youtube.com/watch?v=wRqsd99S12c)
 
-
 ## Summit
 
 * [2017區塊鏈愛好者大會](https://seminars.tca.org.tw/D15n00197.aspx)
@@ -44,6 +43,14 @@
 ### 20180429 線上區域鍊讀書會 - web3 + solidity
 
 * [Youtube Video](https://www.youtube.com/watch?v=_Lbd0z9lZb4)
+
+### COSCUP 2018
+
+* [區塊鏈上的二手票劵售票系統](https://docs.google.com/presentation/d/1j0NM_ZDc-7_ImVro3eauKThlj2CjhUqB2QKPrpBuGiM/edit#slide=id.g4023cd93cd_0_18)
+* [yurenju/hub](https://github.com/yurenju/hub)
+* [Event Hub](https://yurenju.github.io/hub/)
+* [medium.com | 524: A timeout occurred](https://medium.com/@yurenju)
+* [Yuren Ju (@yurenju) | Twitter](https://twitter.com/yurenju)
 
 ## Mise
 

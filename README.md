@@ -120,6 +120,8 @@
 * [Livepeer](https://livepeer.org/)
 * [Crypto Explained by Jackson Palmer - Youtube](https://www.youtube.com/playlist?list=PLm-Jv-jBYUmKji9kssW1q8Gs0YbKKMcvH)
 * [blockchain.mit.edu](http://blockchain.mit.edu/)
+* [Do you need a blockchain?](http://doyouneedablockchain.com/)
+* [OpenSea: Buy Crypto Assets, CryptoKitties, Collectibles on Ethereum &amp; more](https://opensea.io/)
 
 ### Ebook
 
@@ -154,10 +156,7 @@
 
 ## Glossary
 
-name | description
----------|----------
-ETH | ETH is the main currency on the Ethereum network. However, Ethereum can support multiple currencies and ETH eventually will not have privileged status.
-Gas | Executing transactions on Ethereum either runs computations or stores data. This Costs the network CPU cycles or storage space. That cost is paid for by the account that initiates the transaction. The payment is called "gas". Gas is currently paid using ETH.
+* [Glossary - ethereumbook/ethereumbook](https://github.com/ethereumbook/ethereumbook/blob/develop/glossary.asciidoc)
 
 ### License
 
