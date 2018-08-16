@@ -1,17 +1,59 @@
 # Ethereum zero to hero
 
 * [Ethereum Project](https://ethereum.org/)
-* [ethereum/wiki Wiki - GitHub](https://github.com/ethereum/wiki/wiki)
-  * [Ethereum Development Tutorial](https://github.com/ethereum/wiki/wiki/Ethereum-Development-Tutorial)
 * [Readme for Chinese version](README_CN.md)
 * [Ethereum Network](https://ethereum.network/learn)
 
-### Youtube Channel
+## Official Resources
+
+* [Remix - Solidity IDE](https://remix.ethereum.org/)
+
+### Official Documentation
+
+* [Ethereum JavaScript API - web3.js 1.0.0 documentation](https://web3js.readthedocs.io/en/1.0/index.html)
+* [Remix, Ethereum-IDE documentation](https://remix.readthedocs.io/en/latest/index.html)
+* [ethereum/wiki Wiki - GitHub](https://github.com/ethereum/wiki/wiki)
+  * [Ethereum Development Tutorial](https://github.com/ethereum/wiki/wiki/Ethereum-Development-Tutorial)
+* [Solidity 0.4.24 documentation](https://solidity.readthedocs.io/en/v0.4.24/)
+* [Common Patterns - Solidity 0.4.24 documentation](https://solidity.readthedocs.io/en/v0.4.24/common-patterns.html)
+
+## Youtube Channel
 
 * [Dapp University](https://www.youtube.com/channel/UCY0xL8V6NzzFcwzHCgB8orQ)
 * [Ethereum Foundation](https://www.youtube.com/channel/UCNOfzGXD_C9YMYmnefmPH0g/)
 * [What't Solidity](https://www.youtube.com/channel/UCaWes1eWQ9TbzA695gl_PtA)
 * [Ivan on Tech](https://www.youtube.com/user/LiljeqvistIvan)
+* [Youtube Video](youtube_video.md)
+
+### Playlist
+
+#### What's Solidity
+
+* [Learning Solidity](solidity/playlist-PL16WqdAj66SCOdL6XIFbke-XQg2GW_Avg.md)
+
+#### Jackson Palmer
+
+* [Crypto Weekly](https://www.youtube.com/playlist?list=PLm-Jv-jBYUmLp6NDDIwvyFbaZxROOmOk2)
+* [Crypto Explained](https://www.youtube.com/playlist?list=PLm-Jv-jBYUmKji9kssW1q8Gs0YbKKMcvH)
+
+#### Siraj Raval
+
+* [Blockchain Explained](https://www.youtube.com/playlist?list=PL2-dafEMk2A7RTBlSSKdnehec0zJO-xLZ)
+* [Cryptocurrencies](https://www.youtube.com/playlist?list=PL2-dafEMk2A7jW7CYUJsBu58JH27bqaNL)
+* [Intro to Decentralized Apps](https://www.youtube.com/playlist?list=PL2-dafEMk2A5VKD1CvdJMNIYerxoyPOcU)
+
+### Video
+
+* [A Guide to Building Your First Decentralized Application](https://www.youtube.com/watch?v=gSQXq2_j-mw)
+* [Nina Breznik & Alex Praetorius -A Z of Building, Debugging and Deploying Smart Contracts with Rem - YouTube](https://www.youtube.com/watch?v=nAI_Cr5Y8JY)
+
+## Awesome Repo
+
+* [void4/awesome-ethereum](https://github.com/void4/awesome-ethereum)
+* [Xel/Blockchain-stuff](https://github.com/Xel/Blockchain-stuff#ethereum-and-smart-contracts)
+* [bkrem/awesome-solidity](https://github.com/bkrem/awesome-solidity)
+* [btomashvili/awesome-ethereum](https://github.com/btomashvili/awesome-ethereum)
+* [genesisdotre/awesome-ethereum-events](https://github.com/genesisdotre/awesome-ethereum-events)
 
 ## Intro
 
@@ -21,29 +63,14 @@
 
 ## Solidity
 
-* [Solidity 0.4.24 documentation](https://solidity.readthedocs.io/en/v0.4.24/)
-
-### Youtube Playlist
-
-* [Learning Solidity](solidity/playlist-PL16WqdAj66SCOdL6XIFbke-XQg2GW_Avg.md) created by [What's Solidity](https://www.youtube.com/channel/UCaWes1eWQ9TbzA695gl_PtA)
-
 ### IDE
 
-* [Remix - Solidity IDE](https://remix.ethereum.org/)
 * [EthFiddle - Solidity IDE in the Browser. Powered By Loom Network](https://ethfiddle.com/)
 * [GitHub - juanfranblanco/vscode-solidity](https://github.com/juanfranblanco/vscode-solidity): Visual Studio Code language support extension for Solidity smart contracts in Ethereum
 
-### Video
-
-* [Youtube Video](youtube_video.md)
-
 ## Dapp
 
-* [A Guide to Building Your First Decentralized Application - YouTube](https://www.youtube.com/watch?v=gSQXq2_j-mw)
 * [State of the ÐApps — A List of 1,784 Projects Built on Ethereum](https://www.stateofthedapps.com/)
-
-### Slides
-
 * [Nina Breznik - How to build a DApp](https://slides.com/ninabreznik/deck-11-13/fullscreen)
 
 ### example
@@ -63,11 +90,10 @@
 * [Smart Contracts and Decentralized Apps 101](https://coursetro.com/posts/code/98/Smart-Contracts-and-Decentralized-Apps-101)
 * Building Smart Contracts with Remix by **Nina Breznik & Alex Praetorius**
   * [Slides](http://slides.com/ninabreznik/deck-11-12/fullscreen)
-  * [YouTube](https://www.youtube.com/watch?v=nAI_Cr5Y8JY&feature=youtu.be)
+  * [YouTube](https://www.youtube.com/watch?v=nAI_Cr5Y8JY)
 
 ### Repo
 
-* [OpenZeppelin/openzeppelin-solidity](https://github.com/OpenZeppelin/openzeppelin-solidity): OpenZeppelin, a framework to build secure smart contracts on Ethereum
 * [pigworld/Plasma](https://github.com/pigworld/Plasma)
 * [ConsenSys/smart-contract-best-practices](https://github.com/ConsenSys/smart-contract-best-practices): A guide to smart contract security best practices 
   * [Ethereum Smart Contract Best Practices](https://consensys.github.io/smart-contract-best-practices/)
@@ -76,13 +102,8 @@
 ### Mise
 
 * [Let’s Build Your First Smart Contract in Solidity and Truffle](https://medium.com/etherereum-salon/hello-ethereum-solan-contract-4643118a6119)
-* [Common Patterns &mdash; Solidity 0.4.24 documentation](https://solidity.readthedocs.io/en/v0.4.24/common-patterns.html)
 * [Solidity Tutorials | Ethereal Builder’s Guide](https://ethereumbuilders.gitbooks.io/guide/content/en/solidity_tutorials.html)
-
-## Web3.js
-
-* [Getting Started — web3.js 1.0.0 documentation](https://web3js.readthedocs.io/en/1.0/getting-started.html)
-
+  
 ## Wallet
 
 ### [MetaMask](https://metamask.io/)
@@ -95,14 +116,6 @@
 * [MyEtherWallet - Github](https://github.com/MyEtherWallet)
 
 ## Resources
-
-### Awesome Repo
-
-* [void4/awesome-ethereum](https://github.com/void4/awesome-ethereum)
-* [Xel/Blockchain-stuff](https://github.com/Xel/Blockchain-stuff#ethereum-and-smart-contracts)
-* [bkrem/awesome-solidity](https://github.com/bkrem/awesome-solidity)
-* [btomashvili/awesome-ethereum](https://github.com/btomashvili/awesome-ethereum)
-* [genesisdotre/awesome-ethereum-events](https://github.com/genesisdotre/awesome-ethereum-events)
 
 ### Online course
 
@@ -135,7 +148,6 @@
 * [reddit - ethereum](https://www.reddit.com/r/ethereum/top/?t=week)
 * [Ethereum Stack Exchange](https://ethereum.stackexchange.com/)
 * [Livepeer](https://livepeer.org/)
-* [Crypto Explained by Jackson Palmer - Youtube](https://www.youtube.com/playlist?list=PLm-Jv-jBYUmKji9kssW1q8Gs0YbKKMcvH)
 * [blockchain.mit.edu](http://blockchain.mit.edu/)
 * [Do you need a blockchain?](http://doyouneedablockchain.com/)
 * [OpenSea: Buy Crypto Assets, CryptoKitties, Collectibles on Ethereum &amp; more](https://opensea.io/)
@@ -144,26 +156,27 @@
 
 * [ethereumbook/ethereumbook](https://github.com/ethereumbook/ethereumbook): Mastering Ethereum, by Andreas M. Antonopoulos, Gavin Wood https://ethereumbook.info/
 
-### weekly
+### Weekly
 
-* [Crypto Weekly by Jackson Palmer - Youtube](https://www.youtube.com/playlist?list=PLm-Jv-jBYUmLp6NDDIwvyFbaZxROOmOk2)
 * [Zero Knowledge - Anna Rose](http://www.zeroknowledge.fm/hosts/anna)
   
-### framework / Module
+### Framework / Module
 
+* [OpenZeppelin/openzeppelin-solidity](https://github.com/OpenZeppelin/openzeppelin-solidity): OpenZeppelin, a framework to build secure smart contracts on Ethereum
 * [GitHub - trufflesuite/truffle: The most popular Ethereal development framework](https://github.com/trufflesuite/truffle)
   * [Truffle Suite | Tutorials | Ethereum Pet Shop - Your First Dapp](https://truffleframework.com/tutorials/pet-shop)
 * [GitHub - ethereum/solc-js: Javascript bindings for the solidity compiler](https://github.com/ethereum/solc-js)
 
-### small project / example
+### Project
 
 * [Pig World](https://pig.world/)
   * [Pig World White Paper - ZH V1](https://docs.google.com/document/d/1Ld2KnBtLXMFmGdfq7q4paAysoy07dWWyMYy2Ul1yc9o/edit)
   * [pigworld/Plasma](https://github.com/pigworld/Plasma)
   * [pigworld/Jungle-Scratch-ETH - Github](https://github.com/pigworld/Jungle-Scratch-ETH): Jungle Scratch (叢林刮刮樂）
-  * [
-	Ethereum Accounts, Address and Contracts
-](https://etherscan.io/address/0xc78c9d561cd66d1ab28cc0643a1941b93915629b)
+  * [Ethereum Accounts, Address and Contracts](https://etherscan.io/address/0xc78c9d561cd66d1ab28cc0643a1941b93915629b)
+
+### example
+
 * [oraclize/ethereum-api - Github](https://github.com/oraclize/ethereum-api)
   * [oraclize/ethereum-examples - Github](https://github.com/oraclize/ethereum-examples)
 * [GitHub - gonsakon/solidity-sample](https://github.com/gonsakon/solidity-sample)
