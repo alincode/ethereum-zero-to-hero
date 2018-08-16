@@ -40,6 +40,7 @@
 ## Dapp
 
 * [A Guide to Building Your First Decentralized Application - YouTube](https://www.youtube.com/watch?v=gSQXq2_j-mw)
+* [State of the ÐApps — A List of 1,784 Projects Built on Ethereum](https://www.stateofthedapps.com/)
 
 ### Slides
 

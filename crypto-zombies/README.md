@@ -1,5 +1,7 @@
 # Crypto Zombies
 
+[CryptoZombies - Learn to code games on Ethereum. Powered by Loom Network](https://cryptozombies.io/)
+
 ![](assets/crypto-zombies.png)
 
 1. [第一章：建立殭屍工廠](01_ lesson.md)

@@ -1,5 +1,9 @@
 # Ethereum zero to hero 中文資源
 
+## Dapp
+
+* [一步步教你開發、部署第一個Dapp應用:寵物商店](https://tw.saowen.com/a/761de0f0c88821f7ecc7d1ff7026a22c73284edab2d770b37491c213581ea04a)
+
 ## Web3.js
 
 * [Web3.js API 中文文档](http://web3.tryblockchain.org/index.html)
@@ -7,9 +11,11 @@
 ## Solidity
 
 * [線上讀書會 和勳 主講 web3 + solidity - YouTube](https://www.youtube.com/watch?v=_Lbd0z9lZb4)
+* [深入浅出区块链 - Solidity](https://learnblockchain.cn/categories/ethereum/Solidity/)
 
 ## Smart Contract
 
+* [Nicholas Lin’s Presentations on SlideShare](https://www.slideshare.net/NicholasLin15/presentations)
 * [getamis/contract-training by AMIS - Github](https://github.com/getamis/contract-training)
 * [使用Node.js部署智能合約(Smart Contract) – Taipei Ethereal Meetup – Medium](https://medium.com/taipei-ethereum-meetup/%E4%BD%BF%E7%94%A8node-js%E9%83%A8%E7%BD%B2%E6%99%BA%E8%83%BD%E5%90%88%E7%B4%84-smart-contract-520534305aaf)
 * [CryptoZombies - 编游戏的同时学习以太坊的智能协议. Loom Network产品。](https://cryptozombies.io/zh/)
@@ -69,5 +75,6 @@
 
 ### ebook
 
+* [簡介 · Ethereum區塊鏈！智能合約(Smart Contract)與分散式網頁應用(DApp)入門](https://gasolin.gitbooks.io/learn-ethereum-dapp/content/)
 * [https://legacy.gitbook.com/book/easonwang01/blockchain-and-cryptography](https://legacy.gitbook.com/book/easonwang01/blockchain-and-cryptography)
   * [EasonWang01/Transaction-Dapp](https://github.com/EasonWang01/Transaction-Dapp)
