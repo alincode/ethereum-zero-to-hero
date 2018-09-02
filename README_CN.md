@@ -10,6 +10,7 @@
 
 ## Solidity
 
+* [以太幣智能合約(二)：透過 Solidity 制定合約](https://noob.tw/smart-contracts-solidity/)
 * [線上讀書會 和勳 主講 web3 + solidity - YouTube](https://www.youtube.com/watch?v=_Lbd0z9lZb4)
 * [深入浅出区块链 - Solidity](https://learnblockchain.cn/categories/ethereum/Solidity/)
 
