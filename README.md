@@ -195,7 +195,8 @@
   * [pigworld/Plasma](https://github.com/pigworld/Plasma)
   * [pigworld/Jungle-Scratch-ETH - Github](https://github.com/pigworld/Jungle-Scratch-ETH): Jungle Scratch (叢林刮刮樂）
   * [Ethereum Accounts, Address and Contracts](https://etherscan.io/address/0xc78c9d561cd66d1ab28cc0643a1941b93915629b)
-
+* [King of the Ether](https://www.kingoftheether.com/thrones/kingoftheether/index.html)
+  
 ### example
 
 * [oraclize/ethereum-api - Github](https://github.com/oraclize/ethereum-api)
