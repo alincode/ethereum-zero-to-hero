@@ -5,6 +5,7 @@
 * [Ethereum Project](https://ethereum.org/)
 * [Readme for Chinese version](README_CN.md)
 * [Ethereum Network](https://ethereum.network/learn)
+* [Github - Topic / ethereumjs](https://github.com/topics/ethereumjs)
 
 ## Official Resources
 

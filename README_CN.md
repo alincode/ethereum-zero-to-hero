@@ -17,6 +17,7 @@
 
 ## Smart Contract
 
+* [2018-09-05 區塊鏈與智能合約 by Yuren Ju](https://docs.google.com/presentation/d/13uD2Hj3QhI9yHKmsGs7yYb61HF1uzbaDNrEnSN1qUIg/)
 * [Nicholas Lin’s Presentations on SlideShare](https://www.slideshare.net/NicholasLin15/presentations)
 * [getamis/contract-training by AMIS - Github](https://github.com/getamis/contract-training)
 * [使用Node.js部署智能合約(Smart Contract) – Taipei Ethereal Meetup – Medium](https://medium.com/taipei-ethereum-meetup/%E4%BD%BF%E7%94%A8node-js%E9%83%A8%E7%BD%B2%E6%99%BA%E8%83%BD%E5%90%88%E7%B4%84-smart-contract-520534305aaf)
