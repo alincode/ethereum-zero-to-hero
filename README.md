@@ -4,21 +4,32 @@
 
 * [Ethereum Project](https://ethereum.org/)
 * [Readme for Chinese version](README_CN.md)
-* [Ethereum Network](https://ethereum.network/learn)
-* [Github - Topic / ethereumjs](https://github.com/topics/ethereumjs)
 
 ## Official Resources
 
 * [Remix - Solidity IDE](https://remix.ethereum.org/)
+* [Ethereum Network](https://ethereum.network/learn)
+* [Github - Topic / ethereumjs](https://github.com/topics/ethereumjs)
 
 ### Official Documentation
 
-* [Ethereum JavaScript API - web3.js 1.0.0 documentation](https://web3js.readthedocs.io/en/1.0/index.html)
-* [Remix, Ethereum-IDE documentation](https://remix.readthedocs.io/en/latest/index.html)
-* [ethereum/wiki Wiki - GitHub](https://github.com/ethereum/wiki/wiki)
+* Solidity 0.4.25 documentation:<https://solidity.readthedocs.io/en/v0.4.25/>
+* [web3.js 1.0.0 documentation](https://web3js.readthedocs.io/en/1.0/index.html)：Ethereum JavaScript API
+* [Remix documentation](https://remix.readthedocs.io/en/latest/index.html)
+* [ethereum wiki - GitHub](https://github.com/ethereum/wiki/wiki)
   * [Ethereum Development Tutorial](https://github.com/ethereum/wiki/wiki/Ethereum-Development-Tutorial)
-* [Solidity 0.4.24 documentation](https://solidity.readthedocs.io/en/v0.4.24/)
-* [Common Patterns - Solidity 0.4.24 documentation](https://solidity.readthedocs.io/en/v0.4.24/common-patterns.html)
+
+## News / community
+
+* Reddit - ethdev:<https://www.reddit.com/r/ethdev/>
+* Week in Ethereum News：<http://www.weekinethereum.com/>
+* Ethereum Community Forum：<https://forum.ethereum.org/>
+* ethereum/home - Gitter: <https://gitter.im/ethereum/home>s
+* [Zero Knowledge - Anna Rose](http://www.zeroknowledge.fm/hosts/anna)
+
+## Slides
+
+* [Alexander Praetorius - Gas: Slides](http://slides.com/serapath/1-gas/fullscreen)
 
 ## Youtube Channel
 
@@ -70,12 +81,6 @@
 * [bkrem/awesome-solidity](https://github.com/bkrem/awesome-solidity)
 * [btomashvili/awesome-ethereum](https://github.com/btomashvili/awesome-ethereum)
 * [genesisdotre/awesome-ethereum-events](https://github.com/genesisdotre/awesome-ethereum-events)
-
-## Intro
-
-### Slides
-
-* [Alexander Praetorius - Gas: Slides](http://slides.com/serapath/1-gas/fullscreen)
 
 ## Solidity
 
@@ -140,7 +145,7 @@
 
 * [Ethereum and Solidity : Become a Blockchain Developer today](https://www.udemy.com/ethereum-and-solidity-become-a-blockchain-developer-today/)
 
-### Community / Conference
+### Community / Conference
 
 * [EthereumJS](https://ethereumjs.github.io/)
   * [Github](https://github.com/ethereumjs): Ethereum Javascript Community - Your Javascript Gateway to Ethereum
@@ -178,9 +183,6 @@
 
 * [ethereumbook/ethereumbook](https://github.com/ethereumbook/ethereumbook): Mastering Ethereum, by Andreas M. Antonopoulos, Gavin Wood https://ethereumbook.info/
 
-### Weekly
-
-* [Zero Knowledge - Anna Rose](http://www.zeroknowledge.fm/hosts/anna)
   
 ### Framework / Module
 
