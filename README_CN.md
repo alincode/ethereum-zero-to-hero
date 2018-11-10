@@ -9,15 +9,10 @@
 * [線上讀書會 和勳 主講 web3 + solidity - YouTube](https://www.youtube.com/watch?v=_Lbd0z9lZb4)
 * [深入浅出区块链 - Solidity](https://learnblockchain.cn/categories/ethereum/Solidity/)
 
-## Tutorial
-
-* CryptoZombies:<https://cryptozombies.io/zh/>
-
-## Smart Contract
+## Slide
 
 * [2018-09-05 區塊鏈與智能合約 by Yuren Ju](https://docs.google.com/presentation/d/13uD2Hj3QhI9yHKmsGs7yYb61HF1uzbaDNrEnSN1qUIg/)
 * [Nicholas Lin’s Presentations on SlideShare](https://www.slideshare.net/NicholasLin15/presentations)
-* [getamis/contract-training by AMIS - Github](https://github.com/getamis/contract-training)
 
 ### Company
 
@@ -49,6 +44,13 @@
 
 ### ebook
 
-* [簡介 · Ethereum區塊鏈！智能合約(Smart Contract)與分散式網頁應用(DApp)入門](https://gasolin.gitbooks.io/learn-ethereum-dapp/content/)
-* [https://legacy.gitbook.com/book/easonwang01/blockchain-and-cryptography](https://legacy.gitbook.com/book/easonwang01/blockchain-and-cryptography)
-  * [EasonWang01/Transaction-Dapp](https://github.com/EasonWang01/Transaction-Dapp)
+* [Ethereum 區塊鏈！智能合約與 DApp 入門](https://gasolin.gitbooks.io/learn-ethereum-dapp/content/)
+
+### Tutorial
+
+* CryptoZombies:<https://cryptozombies.io/zh/>
+* [getamis/contract-training by AMIS - Github](https://github.com/getamis/contract-training)
+
+### example
+
+* [EasonWang01/Transaction-Dapp - Github](https://github.com/EasonWang01/Transaction-Dapp)
