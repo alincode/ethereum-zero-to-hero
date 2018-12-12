@@ -19,20 +19,20 @@
 * [ethereum wiki - GitHub](https://github.com/ethereum/wiki/wiki)
   * [Ethereum Development Tutorial](https://github.com/ethereum/wiki/wiki/Ethereum-Development-Tutorial)
 
-## News / community
+## Security
+* [Ethereum Smart Contract Security Best Practices](https://consensys.github.io/smart-contract-best-practices/)
 
+## News / community
 * Reddit - ethdev:<https://www.reddit.com/r/ethdev/>
-* Week in Ethereum News：<http://www.weekinethereum.com/>
-* Ethereum Community Forum：<https://forum.ethereum.org/>
+* Week in Ethereum News: <http://www.weekinethereum.com/>
+* Ethereum Community Forum: <https://forum.ethereum.org/>
 * ethereum/home - Gitter: <https://gitter.im/ethereum/home>s
 * [Zero Knowledge - Anna Rose](http://www.zeroknowledge.fm/hosts/anna)
 
 ## Slides
-
 * [Alexander Praetorius - Gas: Slides](http://slides.com/serapath/1-gas/fullscreen)
 
 ## Youtube Channel
-
 * [Dapp University](https://www.youtube.com/channel/UCY0xL8V6NzzFcwzHCgB8orQ)
 * [Ethereum Foundation](https://www.youtube.com/channel/UCNOfzGXD_C9YMYmnefmPH0g/)
 * [What't Solidity](https://www.youtube.com/channel/UCaWes1eWQ9TbzA695gl_PtA)
@@ -115,26 +115,22 @@
   * [YouTube](https://www.youtube.com/watch?v=nAI_Cr5Y8JY)
 
 ### Repo
-
 * [pigworld/Plasma](https://github.com/pigworld/Plasma)
 * [ConsenSys/smart-contract-best-practices](https://github.com/ConsenSys/smart-contract-best-practices): A guide to smart contract security best practices 
   * [Ethereum Smart Contract Best Practices](https://consensys.github.io/smart-contract-best-practices/)
 * [fivedogit/solidity-baby-steps](https://github.com/fivedogit/solidity-baby-steps/tree/master/contracts)
 
 ### Mise
-
 * [Let’s Build Your First Smart Contract in Solidity and Truffle](https://medium.com/etherereum-salon/hello-ethereum-solan-contract-4643118a6119)
 * [Solidity Tutorials | Ethereal Builder’s Guide](https://ethereumbuilders.gitbooks.io/guide/content/en/solidity_tutorials.html)
   
 ## Wallet
 
 ### [MetaMask](https://metamask.io/)
-
 * [MetaMask Compatibility Guide](https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md)
 * [Learning Solidity Part 1: Contract Dev with MetaMask](https://karl.tech/learning-solidity-part-1-deploy-a-contract/)~~
 
 ### [MyEtherWallet.com](https://www.myetherwallet.com/)
-
 * [MyEtherWallet - Github](https://github.com/MyEtherWallet)
 
 ### [Parity](https://www.parity.io/)
@@ -142,11 +138,9 @@
 ## Resources
 
 ### Online course
-
 * [Ethereum and Solidity : Become a Blockchain Developer today](https://www.udemy.com/ethereum-and-solidity-become-a-blockchain-developer-today/)
 
 ### Community / Conference
-
 * [EthereumJS](https://ethereumjs.github.io/)
   * [Github](https://github.com/ethereumjs): Ethereum Javascript Community - Your Javascript Gateway to Ethereum
   * [ethereumjs-wallet](https://github.com/ethereumjs/ethereumjs-wallet)
@@ -166,7 +160,6 @@
   * [Youtube](BuildETH/playlist-PLyHOL7sisyL4MeVSPh7kNVMm4zLpz1rPK.md)
 
 ## Mise
-
 * [Ethplorer — Ethereal tokens explorer and data viewer](https://ethplorer.io/)
 * [Ethereum BlockChain Explorer and Search](https://etherscan.io/)
 * [Ethereum Unit Converter](https://etherconverter.online/)
@@ -180,19 +173,21 @@
 * [OpenSea: Buy Crypto Assets, CryptoKitties, Collectibles on Ethereum &amp; more](https://opensea.io/)
 
 ### Ebook
-
 * [ethereumbook/ethereumbook](https://github.com/ethereumbook/ethereumbook): Mastering Ethereum, by Andreas M. Antonopoulos, Gavin Wood https://ethereumbook.info/
 
-  
-### Framework / Module
-
+### reusable Solidity libraries
 * [OpenZeppelin/openzeppelin-solidity](https://github.com/OpenZeppelin/openzeppelin-solidity): OpenZeppelin, a framework to build secure smart contracts on Ethereum
-* [GitHub - trufflesuite/truffle: The most popular Ethereal development framework](https://github.com/trufflesuite/truffle)
+* [ConsenSys/live-libs](https://github.com/ConsenSys/live-libs)
+
+### Framework
+* [trufflesuite/truffle](https://github.com/trufflesuite/truffle): The most popular Ethereal development framework
   * [Truffle Suite | Tutorials | Ethereum Pet Shop - Your First Dapp](https://truffleframework.com/tutorials/pet-shop)
+* [embark-framework/embark](https://github.com/embark-framework/embark): Framework for serverless Decentralized Applications using Ethereum, IPFS and other platforms.
+
+### Compiler
 * [GitHub - ethereum/solc-js: Javascript bindings for the solidity compiler](https://github.com/ethereum/solc-js)
 
 ### Project
-
 * [Pig World](https://pig.world/)
   * [Pig World White Paper - ZH V1](https://docs.google.com/document/d/1Ld2KnBtLXMFmGdfq7q4paAysoy07dWWyMYy2Ul1yc9o/edit)
   * [pigworld/Plasma](https://github.com/pigworld/Plasma)
@@ -201,7 +196,6 @@
 * [King of the Ether](https://www.kingoftheether.com/thrones/kingoftheether/index.html)
   
 ### example
-
 * [oraclize/ethereum-api - Github](https://github.com/oraclize/ethereum-api)
   * [oraclize/ethereum-examples - Github](https://github.com/oraclize/ethereum-examples)
 * [GitHub - gonsakon/solidity-sample](https://github.com/gonsakon/solidity-sample)
@@ -211,14 +205,11 @@
 * [iisaint/push-button-tutorial](https://github.com/iisaint/push-button-tutorial)
 
 ## Glossary
-
 * [Glossary - ethereumbook/ethereumbook](https://github.com/ethereumbook/ethereumbook/blob/develop/glossary.asciidoc)
 
 ## Helper
-
-* [Error Happened](https://ethereum.stackexchange.com/)
+* [ethereum - stackexchange](https://ethereum.stackexchange.com/)
 * [ethereum/home - Gitter](https://gitter.im/ethereum/home)
 
 ### License
-
 MIT © [alincode](https://github.com/alincode)
