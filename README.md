@@ -2,17 +2,15 @@
 
 ![Ethereum](https://upload.wikimedia.org/wikipedia/commons/b/b7/ETHEREUM-YOUTUBE-PROFILE-PIC.png)
 
-* [Ethereum Project](https://ethereum.org/)
+* [Ethereum Official](https://ethereum.org/)
 * [Readme for Chinese version](README_CN.md)
 
 ## Official Resources
-
 * [Remix - Solidity IDE](https://remix.ethereum.org/)
 * [Ethereum Network](https://ethereum.network/learn)
 * [Github - Topic / ethereumjs](https://github.com/topics/ethereumjs)
 
 ### Official Documentation
-
 * Solidity 0.4.25 documentation:<https://solidity.readthedocs.io/en/v0.4.25/>
 * [web3.js 1.0.0 documentation](https://web3js.readthedocs.io/en/1.0/index.html)：Ethereum JavaScript API
 * [Remix documentation](https://remix.readthedocs.io/en/latest/index.html)
@@ -29,9 +27,6 @@
 * ethereum/home - Gitter: <https://gitter.im/ethereum/home>s
 * [Zero Knowledge - Anna Rose](http://www.zeroknowledge.fm/hosts/anna)
 
-## Slides
-* [Alexander Praetorius - Gas: Slides](http://slides.com/serapath/1-gas/fullscreen)
-
 ## Youtube Channel
 * [Dapp University](https://www.youtube.com/channel/UCY0xL8V6NzzFcwzHCgB8orQ)
 * [Ethereum Foundation](https://www.youtube.com/channel/UCNOfzGXD_C9YMYmnefmPH0g/)
@@ -42,39 +37,32 @@
 ### Playlist
 
 #### What's Solidity
-
 * [Learning Solidity](solidity/playlist-PL16WqdAj66SCOdL6XIFbke-XQg2GW_Avg.md)
 
 #### Jackson Palmer
-
 * [Crypto Weekly](https://www.youtube.com/playlist?list=PLm-Jv-jBYUmLp6NDDIwvyFbaZxROOmOk2)
 * [Crypto Explained](https://www.youtube.com/playlist?list=PLm-Jv-jBYUmKji9kssW1q8Gs0YbKKMcvH)
 
 #### Siraj Raval
-
 * [Blockchain Explained](https://www.youtube.com/playlist?list=PL2-dafEMk2A7RTBlSSKdnehec0zJO-xLZ)
 * [Cryptocurrencies](https://www.youtube.com/playlist?list=PL2-dafEMk2A7jW7CYUJsBu58JH27bqaNL)
 * [Intro to Decentralized Apps](https://www.youtube.com/playlist?list=PL2-dafEMk2A5VKD1CvdJMNIYerxoyPOcU)
 
 #### Ivan on Tech
-
 * [Bitcoin and Ethereum Technology](https://www.youtube.com/playlist?list=PLo0ddf4DBUYsAMeJUCIyt462umC0BvHz4)
 * [Good Morning Crypto](https://www.youtube.com/playlist?list=PLo0ddf4DBUYtPL_oBY40dJ3-8vJICkjW0)
 * [Solidity Tutorials | Smart contract programming](https://www.youtube.com/playlist?list=PLo0ddf4DBUYv6fyf5uRVsvS-acu2EMFNF)
 
 ### Popular Videos
-
 * [Difference between DAPPS and Smart Contracts? Programmer explains.](https://www.youtube.com/watch?v=4rczD8xKPJc)
 * [A Guide to Building Your First Decentralized Application](https://www.youtube.com/watch?v=gSQXq2_j-mw)
 * [Nina Breznik & Alex Praetorius -A Z of Building, Debugging and Deploying Smart Contracts with Rem - YouTube](https://www.youtube.com/watch?v=nAI_Cr5Y8JY)
 
 ### Future
-
 * [How the blockchain is changing money and business | Don Tapscott](https://www.youtube.com/watch?v=Pl8OlkkwRpc)
 * [How the blockchain will radically transform the economy | Bettina Warburg](https://www.youtube.com/watch?v=RplnSVTzvnU)
 
 ## Awesome Repo
-
 * [Scanate/EthList](https://github.com/Scanate/EthList): The Crowdsourced Ethereum Reading List
 * [void4/awesome-ethereum](https://github.com/void4/awesome-ethereum)
 * [Xel/Blockchain-stuff](https://github.com/Xel/Blockchain-stuff#ethereum-and-smart-contracts)
@@ -85,17 +73,14 @@
 ## Solidity
 
 ### IDE
-
 * [EthFiddle - Solidity IDE in the Browser. Powered By Loom Network](https://ethfiddle.com/)
 * [GitHub - juanfranblanco/vscode-solidity](https://github.com/juanfranblanco/vscode-solidity): Visual Studio Code language support extension for Solidity smart contracts in Ethereum
 
 ## Dapp
-
 * [State of the ÐApps — A List of 1,784 Projects Built on Ethereum](https://www.stateofthedapps.com/)
 * [Nina Breznik - How to build a DApp](https://slides.com/ninabreznik/deck-11-13/fullscreen)
 
 ### example
-
 * [llSourcell/Your_First_Decentralized_Application](https://github.com/llSourcell/Your_First_Decentralized_Application)
 * [kyriediculous/dapp-tutorial](https://github.com/kyriediculous/dapp-tutorial)
   * [Created using browser-solidity: Realtime Ethereum Contract Compiler and Runtime. 
@@ -105,7 +90,6 @@
   * [Create your first Ethereum dAPP with Web3 and Vue.JS (Part 3)](https://itnext.io/create-your-first-ethereum-dapp-with-web3-and-vue-js-part-3-dc4f82fba4b4)
 
 ## Smart Contracts
-
 * [CryptoZombies - Learn to code games on Ethereum. Powered by Loom Network](https://cryptozombies.io/)
   * [loomnetwork/cryptozombie-lessons](https://github.com/loomnetwork/cryptozombie-lessons)
 * [Developing Ethereum Smart Contracts for Beginners](https://coursetro.com/courses/20/Developing-Ethereum-Smart-Contracts-for-Beginners)
