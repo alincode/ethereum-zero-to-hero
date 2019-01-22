@@ -1,0 +1,26 @@
+{
+  "name": "etherjs-sandbox",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "budo demo.js:bundle.js --dir ./src --live --open",
+    "build": "browserify demo.js > bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alincode/etherjs-sandbox.git"
+  },
+  "keywords": [
+    "ether.js"
+  ],
+  "author": "alincode <alincode@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alincode/etherjs-sandbox/issues"
+  },
+  "homepage": "https://github.com/alincode/etherjs-sandbox#readme",
+  "dependencies": {
+    "ethers": "^4.0.12"
+  }
+}

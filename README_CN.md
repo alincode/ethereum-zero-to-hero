@@ -4,6 +4,11 @@
 
 * [Web3.js API 中文文档](http://web3.tryblockchain.org/index.html)
 
+## 智能合約
+
+* [一文掌握智能合约开发 9 大核心要素](https://www.chainnews.com/articles/874950123544.htm)
+* [【Ethereum 智能合約開發筆記】深入智能合約 ABI](https://medium.com/taipei-ethereum-meetup/268ececb70ae)
+
 ## Solidity
 
 * [線上讀書會 和勳 主講 web3 + solidity - YouTube](https://www.youtube.com/watch?v=_Lbd0z9lZb4)
